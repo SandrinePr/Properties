@@ -26,7 +26,7 @@ interface PropertyDetailData {
 const PropertyDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [property, setProperty] = useState<PropertyDetailData | null>(null);
-  const [photoIndex, setPhotoIndex] = useState<number | null>(null); // Index voor navigatie
+  const [photoIndex, setPhotoIndex] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchProperty = async () => {
@@ -65,60 +65,59 @@ const PropertyDetail: React.FC = () => {
       <div className="property-detail__card">
         <h1 className="property-detail__title">{property.title.rendered}</h1>
 
-        {/* Klikbare Grid Layout */}
-        <div className="funda-grid">
-          <div className="funda-grid__main" onClick={() => setPhotoIndex(0)}>
-            <img src={allImages[0]} alt="Main" referrerPolicy="no-referrer" />
+        {/* Grid met Volledige Breedte Foto's */}
+        <div className="modern-grid">
+          <div className="modern-grid__main" onClick={() => setPhotoIndex(0)}>
+            <img src={allImages[0]} alt="Full view" referrerPolicy="no-referrer" />
           </div>
-          <div className="funda-grid__side">
-            {allImages.slice(1, 5).map((img, idx) => (
-              <div key={idx} className="funda-grid__small" onClick={() => setPhotoIndex(idx + 1)}>
-                <img src={img} alt="Side" referrerPolicy="no-referrer" />
-                {idx === 3 && allImages.length > 5 && (
-                  <div className="funda-grid__more">+{allImages.length - 5} foto's</div>
-                )}
+          <div className="modern-grid__side">
+            {allImages.slice(1, 4).map((img, idx) => (
+              <div key={idx} className="modern-grid__item" onClick={() => setPhotoIndex(idx + 1)}>
+                <img src={img} alt="Side view" referrerPolicy="no-referrer" />
               </div>
             ))}
           </div>
         </div>
 
-        {/* Navigeerbare Lightbox */}
+        {/* Moderne Dark Lightbox */}
         {photoIndex !== null && (
-          <div className="full-viewer" onClick={() => setPhotoIndex(null)}>
-            <button className="full-viewer__close">✕ Sluiten</button>
-            <button className="full-viewer__nav prev" onClick={prevPhoto}>❮</button>
-            <div className="full-viewer__container">
-              <img src={allImages[photoIndex]} alt="Full view" />
-              <div className="full-viewer__counter">{photoIndex + 1} / {allImages.length}</div>
+          <div className="modern-viewer" onClick={() => setPhotoIndex(null)}>
+            <button className="modern-viewer__close">✕ Sluiten</button>
+            
+            <button className="modern-viewer__arrow prev" onClick={prevPhoto}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 18l-6-6 6-6"/></svg>
+            </button>
+
+            <div className="modern-viewer__content">
+              <img src={allImages[photoIndex]} alt="Large view" />
+              <div className="modern-viewer__counter">{photoIndex + 1} / {allImages.length}</div>
             </div>
-            <button className="full-viewer__nav next" onClick={nextPhoto}>❯</button>
+
+            <button className="modern-viewer__arrow next" onClick={nextPhoto}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 18l6-6-6-6"/></svg>
+            </button>
           </div>
         )}
 
-        <div className="property-content">
-          <section className="property-content__section">
+        <div className="property-info-full">
+          <section className="property-info-full__section">
             <h2>Basis Kenmerken</h2>
-            <div className="property-content__list">
-              <div className="item"><strong>PRIJS</strong>€ {Number(property.acf.price).toLocaleString('nl-NL')}</div>
-              <div className="item"><strong>SLAAPKAMERS</strong>{property.acf.bedrooms}</div>
-              <div className="item"><strong>OPPERVLAKTE</strong>{property.acf.square_footage} m²</div>
-              <div className="item"><strong>BOUWJAAR</strong>{property.acf.construction_year}</div>
+            <div className="property-info-full__grid">
+              <div className="data-box"><strong>PRIJS</strong>€ {Number(property.acf.price).toLocaleString('nl-NL')}</div>
+              <div className="data-box"><strong>SLAAPKAMERS</strong>{property.acf.bedrooms}</div>
+              <div className="data-box"><strong>OPPERVLAKTE</strong>{property.acf.square_footage} m²</div>
+              <div className="data-box"><strong>BOUWJAAR</strong>{property.acf.construction_year}</div>
             </div>
           </section>
 
-          <section className="property-content__section">
+          <section className="property-info-full__section">
             <h2>Voorzieningen</h2>
-            <div className="property-content__tags">
+            <div className="property-info-full__tags">
               {property.acf.garden && <span>Tuin ✅</span>}
               {property.acf.pool && <span>Zwembad ✅</span>}
               {property.acf.garage && <span>Garage ✅</span>}
               {property.acf.driveway && <span>Oprit ✅</span>}
             </div>
-          </section>
-
-          <section className="property-content__section">
-            <h2>Beschrijving</h2>
-            <p className="description-text">{property.acf.description}</p>
           </section>
         </div>
       </div>
