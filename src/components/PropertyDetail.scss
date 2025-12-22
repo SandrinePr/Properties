@@ -1,101 +1,98 @@
-.funda-page {
-  background: #f7f7f7;
+.pd-main {
+  background: #f9f9f9;
   min-height: 100vh;
   padding: 40px 20px;
 }
 
-.funda-container {
-  max-width: 1140px;
+.pd-container {
+  max-width: 1100px;
   margin: 0 auto;
-}
-
-.funda-back {
-  display: block;
-  margin-bottom: 10px;
-  color: #666;
-  text-decoration: none;
-  font-weight: 600;
-}
-
-.funda-title {
-  font-size: 2.5rem;
-  font-weight: 800;
-  margin-bottom: 25px;
-  color: #1a1a1a;
-}
-
-/* DE GRID FIX: Dit is één blok */
-.funda-main-grid {
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
-.funda-photos {
-  display: grid;
-  grid-template-columns: 2fr 1fr; // Links groot, rechts klein
-  gap: 10px;
-  width: 100%;
+.pd-title {
+  font-size: 2.2rem;
+  font-weight: 800;
+  margin: 10px 0 20px 0;
+}
 
-  &__hero {
+/* DE GRID: De side-images zijn nu exact even hoog als de main-image */
+.pd-image-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr; // 2 delen links, 1 deel rechts
+  gap: 12px;
+  width: 100%;
+  align-items: stretch; // Zorgt dat beide kolommen even hoog zijn
+
+  &__main {
     cursor: pointer;
-    aspect-ratio: 3 / 2; // Houdt de foto in bedwang
+    border-radius: 12px;
     overflow: hidden;
-    border-radius: 8px;
-    img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    aspect-ratio: 16 / 10; // De "master" verhouding
+    
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
   }
 
   &__side {
     display: grid;
-    grid-template-rows: 1fr 1fr;
-    gap: 10px;
+    grid-template-rows: 1fr 1fr; // Verdeelt de rechterkant in twee exacte helften
+    gap: 12px;
+    height: 100%; // Neemt de volledige hoogte van de grid aan
   }
 
   &__thumb {
     cursor: pointer;
+    border-radius: 12px;
     overflow: hidden;
-    border-radius: 8px;
-    img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    position: relative;
+    
+    img {
+      position: absolute; // Laat de foto het vak volledig vullen
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
   }
 }
 
-/* De Kaart: Sluit nu aan op de grid-flow */
-.funda-info {
-  width: 100%;
-}
-
-.funda-card {
+/* CONTENT SECTIE: Geen overlap meer */
+.pd-card {
   background: white;
   padding: 40px;
-  border-radius: 12px;
-  box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+  border-radius: 16px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
 }
 
-.funda-section {
-  margin-bottom: 40px;
-  h2 { font-size: 1.5rem; margin-bottom: 20px; }
-}
-
-.funda-stats {
+.pd-stats {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 20px;
   border-top: 1px solid #eee;
-  padding-top: 25px;
+  padding-top: 20px;
 }
 
-.funda-stat {
-  .label { display: block; font-size: 0.7rem; color: #999; letter-spacing: 0.5px; }
-  .value { font-size: 1.2rem; font-weight: 700; color: #111; margin-top: 5px; }
+.pd-stat {
+  .pd-label { display: block; font-size: 0.7rem; color: #999; }
+  .pd-value { font-size: 1.1rem; font-weight: 700; color: #111; }
 }
 
-.description-text { line-height: 1.7; color: #444; white-space: pre-wrap; }
+.pd-description { line-height: 1.7; color: #444; white-space: pre-wrap; }
 
-/* Lightbox */
-.funda-viewer {
-  position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 9999;
+/* LIGHTBOX */
+.pd-lightbox {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000;
   display: flex; align-items: center; justify-content: center;
-  .viewer-content { text-align: center; img { max-width: 90%; max-height: 80vh; border-radius: 4px; } }
-  .counter { color: white; margin-top: 15px; font-weight: bold; }
-  .close-btn { position: absolute; top: 20px; right: 20px; background: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-weight: bold; }
+  &-content { text-align: center; img { max-width: 90%; max-height: 80vh; border-radius: 8px; } }
+  .pd-counter { color: white; margin-top: 15px; font-weight: 600; }
+  .pd-close { position: absolute; top: 20px; right: 20px; background: white; border: none; padding: 10px 20px; border-radius: 30px; cursor: pointer; font-weight: bold; }
 }
