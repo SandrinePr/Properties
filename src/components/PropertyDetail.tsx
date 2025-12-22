@@ -37,7 +37,7 @@ const PropertyDetail: React.FC = () => {
         const res = await fetch(`${API_URL}/wp-json/wp/v2/property/${id}?_embed`, { headers });
         const data = await res.json();
         setProperty(data);
-      } catch (err) { console.error("Fetch error:", err); }
+      } catch (err) { console.error(err); }
     };
     fetchProperty();
   }, [id]);
@@ -60,64 +60,77 @@ const PropertyDetail: React.FC = () => {
 
   return (
     <div className="property-detail">
-      <Link to="/" className="property-detail__back">← Terug naar Overzicht</Link>
-
-      <div className="property-detail__card">
+      <div className="property-detail__container">
+        <Link to="/" className="property-detail__back">← Terug naar Overzicht</Link>
+        
         <h1 className="property-detail__title">{property.title.rendered}</h1>
 
-        {/* Gecropte Grid: Full width per item */}
-        <div className="funda-grid">
-          <div className="funda-grid__main" onClick={() => setPhotoIndex(0)}>
-            <img src={allImages[0]} alt="Main" referrerPolicy="no-referrer" />
+        {/* Grid Sectie - Strikt gescheiden van tekst */}
+        <div className="property-grid">
+          <div className="property-grid__main" onClick={() => setPhotoIndex(0)}>
+            <img src={allImages[0]} alt="Hero" referrerPolicy="no-referrer" />
           </div>
-          <div className="funda-grid__side">
+          <div className="property-grid__side">
             {allImages.slice(1, 4).map((img, idx) => (
-              <div key={idx} className="funda-grid__item" onClick={() => setPhotoIndex(idx + 1)}>
-                <img src={img} alt="Side" referrerPolicy="no-referrer" />
+              <div key={idx} className="property-grid__item" onClick={() => setPhotoIndex(idx + 1)}>
+                <img src={img} alt="Detail" referrerPolicy="no-referrer" />
               </div>
             ))}
           </div>
         </div>
 
-        {/* Lightbox: Tekst ALTIJD onder de afbeelding */}
-        {photoIndex !== null && (
-          <div className="modern-viewer" onClick={() => setPhotoIndex(null)}>
-            <button className="modern-viewer__close">✕ Sluiten</button>
-            
-            <button className="modern-viewer__arrow prev" onClick={prevPhoto}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"><path d="M15 18l-6-6 6-6"/></svg>
-            </button>
-
-            <div className="modern-viewer__wrapper" onClick={(e) => e.stopPropagation()}>
-              <div className="modern-viewer__image-container">
-                <img src={allImages[photoIndex]} alt="Property Large" />
+        {/* Informatie Sectie - Nu gegarandeerd onder de grid */}
+        <div className="property-content">
+          <section className="property-section">
+            <h2 className="property-section__title">Basis Kenmerken</h2>
+            <div className="property-stats">
+              <div className="stat-box">
+                <span className="stat-label">PRIJS</span>
+                <span className="stat-value">€ {Number(property.acf.price).toLocaleString('nl-NL')}</span>
               </div>
-              
-              <div className="modern-viewer__footer">
-                <div className="modern-viewer__counter">
-                  {photoIndex + 1} / {allImages.length}
-                </div>
+              <div className="stat-box">
+                <span className="stat-label">SLAAPKAMERS</span>
+                <span className="stat-value">{property.acf.bedrooms}</span>
               </div>
-            </div>
-
-            <button className="modern-viewer__arrow next" onClick={nextPhoto}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"><path d="M9 18l6-6-6-6" transform="rotate(180 12 12)"/></svg>
-            </button>
-          </div>
-        )}
-
-        <div className="property-info-full">
-          <section className="property-info-full__section">
-            <h2>Basis Kenmerken</h2>
-            <div className="property-info-full__grid">
-              <div className="data-box"><strong>PRIJS</strong>€ {Number(property.acf.price).toLocaleString('nl-NL')}</div>
-              <div className="data-box"><strong>SLAAPKAMERS</strong>{property.acf.bedrooms}</div>
-              <div className="data-box"><strong>OPPERVLAKTE</strong>{property.acf.square_footage} m²</div>
-              <div className="data-box"><strong>BOUWJAAR</strong>{property.acf.construction_year}</div>
+              <div className="stat-box">
+                <span className="stat-label">OPPERVLAKTE</span>
+                <span className="stat-value">{property.acf.square_footage} m²</span>
+              </div>
+              <div className="stat-box">
+                <span className="stat-label">BOUWJAAR</span>
+                <span className="stat-value">{property.acf.construction_year}</span>
+              </div>
             </div>
           </section>
+
+          {property.acf.description && (
+            <section className="property-section">
+              <h2 className="property-section__title">Beschrijving</h2>
+              <p className="property-description">{property.acf.description}</p>
+            </section>
+          )}
         </div>
       </div>
+
+      {/* Lightbox Overlay - Alleen zichtbaar bij klik */}
+      {photoIndex !== null && (
+        <div className="lightbox" onClick={() => setPhotoIndex(null)}>
+          <button className="lightbox__close">✕ Sluiten</button>
+          
+          <button className="lightbox__arrow prev" onClick={prevPhoto}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+
+          <div className="lightbox__content">
+            <img src={allImages[photoIndex]} alt="Large view" onClick={(e) => e.stopPropagation()} />
+            <div className="lightbox__counter">{photoIndex + 1} / {allImages.length}</div>
+          </div>
+
+          <button className="lightbox__arrow next" onClick={nextPhoto}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+        </div>
+      )}
     </div>
   );
 };
