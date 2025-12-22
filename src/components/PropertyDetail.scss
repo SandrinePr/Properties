@@ -1,53 +1,66 @@
-.pd-main { background: #fcfcfc; padding: 40px 20px; }
-.pd-container { max-width: 1120px; margin: 0 auto; }
-.pd-title { font-size: 2.2rem; font-weight: 800; margin-bottom: 25px; }
+.pd-root { background: #fdfdfd; padding: 40px 15px; min-height: 100vh; }
+.pd-inner { max-width: 1120px; margin: 0 auto; }
+.pd-title { font-size: 2.2rem; font-weight: 800; margin-bottom: 25px; color: #1a1a1a; }
 
-/* GRID: Harde uitlijning aan de onderkant */
-.pd-grid {
+/* DE GRID FIX: Dwingt één strakke onderlijn af */
+.pd-photo-grid {
   display: grid;
   grid-template-columns: 2fr 1fr;
   gap: 12px;
   width: 100%;
   margin-bottom: 30px;
 
-  &-main {
-    aspect-ratio: 16 / 10; // Bepaalt de lijn voor de hele grid
+  .pd-grid-left {
     cursor: pointer;
-    border-radius: 8px;
+    border-radius: 12px;
     overflow: hidden;
-    img { width: 100%; height: 100%; object-fit: cover; }
+    aspect-ratio: 16 / 10; // De basis voor de grid-hoogte
+    img { width: 100%; height: 100%; object-fit: cover; display: block; }
   }
 
-  &-side {
+  .pd-grid-right {
     display: grid;
-    grid-template-rows: 1fr 1fr; // Verdeelt rechterkant exact in tweeën
+    grid-template-rows: 1fr 1fr; // Verdeelt rechterkolom exact in tweeën
     gap: 12px;
   }
+
+  .pd-grid-thumb {
+    cursor: pointer;
+    border-radius: 12px;
+    overflow: hidden;
+    img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  }
 }
 
-.pd-thumb {
-  cursor: pointer;
-  border-radius: 8px;
-  overflow: hidden;
-  img { width: 100%; height: 100%; object-fit: cover; }
+.pd-content-card {
+  background: white;
+  padding: 35px;
+  border-radius: 16px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
 }
 
-.pd-card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-
-/* PIJLTJES: 'Fixed' betekent dat ze de grid met rust laten */
-.pd-overlay {
-  position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 9999;
+/* DE VIEWER: De pijltjes staan hier 'fixed' */
+.pd-viewer {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 9999;
   display: flex; align-items: center; justify-content: center;
 
-  .pd-arrow {
+  .pd-nav-arrow {
     position: absolute; top: 50%; transform: translateY(-50%);
     background: none; border: none; color: white; font-size: 5rem;
-    cursor: pointer; padding: 20px; transition: 0.2s;
-    &:hover { color: #ccc; }
-    &.left { left: 20px; }
-    &.right { right: 20px; }
+    cursor: pointer; padding: 20px; z-index: 10000;
+    &:hover { opacity: 0.7; }
+    &.prev { left: 20px; }
+    &.next { right: 20px; }
   }
 
-  .pd-viewer-img img { max-width: 85vw; max-height: 80vh; border-radius: 4px; }
-  .pd-close { position: absolute; top: 20px; right: 20px; color: white; background: none; border: none; cursor: pointer; }
+  .pd-viewer-box {
+    text-align: center;
+    img { max-width: 85vw; max-height: 80vh; border-radius: 4px; }
+    .pd-counter { color: white; margin-top: 15px; font-weight: bold; }
+  }
+
+  .pd-close {
+    position: absolute; top: 30px; right: 30px; background: white; border: none;
+    padding: 10px 20px; border-radius: 30px; font-weight: bold; cursor: pointer;
+  }
 }
