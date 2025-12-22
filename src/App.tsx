@@ -49,8 +49,9 @@ function App() {
     const API_URL = import.meta.env.VITE_API_URL || 'http://headless-property-wp.local';
 
     Promise.all([
-      fetch(`${API_URL}/wp-json/wp/v2/properties?_embed&per_page=100`).then(res => res.json()),
-      fetch(`${API_URL}/wp-json/wp/v2/property-types`).then(res => res.json())
+      // Aangepast naar enkelvoud 'property' en 'property_type' om de 404 op te lossen
+      fetch(`${API_URL}/wp-json/wp/v2/property?_embed&per_page=100`).then(res => res.json()),
+      fetch(`${API_URL}/wp-json/wp/v2/property_type`).then(res => res.json())
     ])
     .then(([propData, typeData]) => {
       setProperties(Array.isArray(propData) ? propData : []);
