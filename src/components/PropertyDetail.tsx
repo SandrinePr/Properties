@@ -23,53 +23,40 @@ interface PropertyDetailData {
   };
 }
 
-const formatPrice = (priceString: string) => {
-  const price = parseInt(priceString, 10);
-  return isNaN(price) ? "Prijs op aanvraag" : price.toLocaleString('nl-NL', {
-    style: 'currency',
-    currency: 'EUR',
-    minimumFractionDigits: 0,
-  });
-};
-
 const PropertyDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [property, setProperty] = useState<PropertyDetailData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [selectedImg, setSelectedImg] = useState<string | null>(null);
+  const [photoIndex, setPhotoIndex] = useState<number | null>(null); // Index voor navigatie
 
   useEffect(() => {
-    if (!id) return;
-    const API_URL = import.meta.env.VITE_API_URL || 'http://headless-property-wp.local';
-    const headers = new Headers();
-    headers.set('Authorization', 'Basic ' + btoa('staple:temporary'));
-
-    fetch(`${API_URL}/wp-json/wp/v2/property/${id}?_embed`, { headers })
-      .then(res => {
-        if (!res.ok) throw new Error('Woning niet gevonden');
-        return res.json();
-      })
-      .then(data => {
+    const fetchProperty = async () => {
+      const API_URL = import.meta.env.VITE_API_URL || 'http://headless-property-wp.local';
+      const headers = new Headers();
+      headers.set('Authorization', 'Basic ' + btoa('staple:temporary'));
+      try {
+        const res = await fetch(`${API_URL}/wp-json/wp/v2/property/${id}?_embed`, { headers });
+        const data = await res.json();
         setProperty(data);
-        setIsLoading(false);
-      })
-      .catch(err => {
-        setError(err.message);
-        setIsLoading(false);
-      });
+      } catch (err) { console.error(err); }
+    };
+    fetchProperty();
   }, [id]);
 
-  if (isLoading) return <div className="property-detail__state">Laden...</div>;
-  if (error) return <div className="property-detail__state error">{error}</div>;
-  if (!property) return null;
+  if (!property) return <div className="loading">Laden...</div>;
 
-  const { acf } = property;
   const featuredImage = property._embedded?.['wp:featuredmedia']?.[0]?.source_url;
-  const galleryImages = Array.isArray(acf.property_gallery) ? acf.property_gallery : [];
-  const allImages = featuredImage 
-    ? [featuredImage, ...galleryImages.filter(img => img !== featuredImage)]
-    : galleryImages;
+  const gallery = Array.isArray(property.acf.property_gallery) ? property.acf.property_gallery : [];
+  const allImages = featuredImage ? [featuredImage, ...gallery.filter(img => img !== featuredImage)] : gallery;
+
+  const nextPhoto = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (photoIndex !== null) setPhotoIndex((photoIndex + 1) % allImages.length);
+  };
+
+  const prevPhoto = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (photoIndex !== null) setPhotoIndex((photoIndex - 1 + allImages.length) % allImages.length);
+  };
 
   return (
     <div className="property-detail">
@@ -78,62 +65,62 @@ const PropertyDetail: React.FC = () => {
       <div className="property-detail__card">
         <h1 className="property-detail__title">{property.title.rendered}</h1>
 
-        {/* Funda-stijl Photo Grid */}
-        <div className="photo-grid">
-          {allImages.length > 0 && (
-            <div className="photo-grid__main" onClick={() => setSelectedImg(allImages[0])}>
-              <img src={allImages[0]} alt="Main" referrerPolicy="no-referrer" />
-            </div>
-          )}
-          <div className="photo-grid__side">
+        {/* Klikbare Grid Layout */}
+        <div className="funda-grid">
+          <div className="funda-grid__main" onClick={() => setPhotoIndex(0)}>
+            <img src={allImages[0]} alt="Main" referrerPolicy="no-referrer" />
+          </div>
+          <div className="funda-grid__side">
             {allImages.slice(1, 5).map((img, idx) => (
-              <div key={idx} className="photo-grid__small" onClick={() => setSelectedImg(img)}>
-                <img src={img} alt={`Side ${idx}`} referrerPolicy="no-referrer" />
+              <div key={idx} className="funda-grid__small" onClick={() => setPhotoIndex(idx + 1)}>
+                <img src={img} alt="Side" referrerPolicy="no-referrer" />
                 {idx === 3 && allImages.length > 5 && (
-                  <div className="photo-grid__overlay">+{allImages.length - 5}</div>
+                  <div className="funda-grid__more">+{allImages.length - 5} foto's</div>
                 )}
               </div>
             ))}
           </div>
         </div>
 
-        {/* Lightbox Vergroting */}
-        {selectedImg && (
-          <div className="lightbox" onClick={() => setSelectedImg(null)}>
-            <div className="lightbox__content">
-              <img src={selectedImg} alt="Vergroting" />
-              <button className="lightbox__close">Sluiten ✕</button>
+        {/* Navigeerbare Lightbox */}
+        {photoIndex !== null && (
+          <div className="full-viewer" onClick={() => setPhotoIndex(null)}>
+            <button className="full-viewer__close">✕ Sluiten</button>
+            <button className="full-viewer__nav prev" onClick={prevPhoto}>❮</button>
+            <div className="full-viewer__container">
+              <img src={allImages[photoIndex]} alt="Full view" />
+              <div className="full-viewer__counter">{photoIndex + 1} / {allImages.length}</div>
             </div>
+            <button className="full-viewer__nav next" onClick={nextPhoto}>❯</button>
           </div>
         )}
 
-        <section className="property-detail__section">
-          <h2>Basis Kenmerken</h2>
-          <div className="property-detail__grid">
-            <div><strong>PRIJS</strong>{formatPrice(acf.price)}</div>
-            <div><strong>SLAAPKAMERS</strong>{acf.bedrooms}</div>
-            <div><strong>BADKAMERS</strong>{acf.bathrooms}</div>
-            <div><strong>OPPERVLAKTE</strong>{acf.square_footage} m²</div>
-            <div><strong>BOUWJAAR</strong>{acf.construction_year || 'Onbekend'}</div>
-          </div>
-        </section>
-
-        <section className="property-detail__section">
-          <h2>Extra Voorzieningen</h2>
-          <div className="property-detail__grid">
-            <div>{acf.garden ? '✅' : '❌'} Tuin</div>
-            <div>{acf.pool ? '✅' : '❌'} Zwembad</div>
-            <div>{acf.garage ? '✅' : '❌'} Garage</div>
-            <div>{acf.driveway ? '✅' : '❌'} Oprit</div>
-          </div>
-        </section>
-
-        {acf.description && (
-          <section className="property-detail__section">
-            <h2>Beschrijving</h2>
-            <p className="property-detail__description">{acf.description}</p>
+        <div className="property-content">
+          <section className="property-content__section">
+            <h2>Basis Kenmerken</h2>
+            <div className="property-content__list">
+              <div className="item"><strong>PRIJS</strong>€ {Number(property.acf.price).toLocaleString('nl-NL')}</div>
+              <div className="item"><strong>SLAAPKAMERS</strong>{property.acf.bedrooms}</div>
+              <div className="item"><strong>OPPERVLAKTE</strong>{property.acf.square_footage} m²</div>
+              <div className="item"><strong>BOUWJAAR</strong>{property.acf.construction_year}</div>
+            </div>
           </section>
-        )}
+
+          <section className="property-content__section">
+            <h2>Voorzieningen</h2>
+            <div className="property-content__tags">
+              {property.acf.garden && <span>Tuin ✅</span>}
+              {property.acf.pool && <span>Zwembad ✅</span>}
+              {property.acf.garage && <span>Garage ✅</span>}
+              {property.acf.driveway && <span>Oprit ✅</span>}
+            </div>
+          </section>
+
+          <section className="property-content__section">
+            <h2>Beschrijving</h2>
+            <p className="description-text">{property.acf.description}</p>
+          </section>
+        </div>
       </div>
     </div>
   );
