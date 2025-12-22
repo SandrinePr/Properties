@@ -45,12 +45,15 @@ function App() {
   });
 
   useEffect(() => {
+    // Definieer de basis URL vanuit Render environment of lokale fallback
+    const API_URL = import.meta.env.VITE_API_URL || 'http://headless-property-wp.local';
+
     Promise.all([
-      fetch('/wp-json/wp/v2/property?_embed&per_page=100').then(res => res.json()),
-      fetch('/wp-json/wp/v2/property_type').then(res => res.json())
+      fetch(`${API_URL}/wp-json/wp/v2/properties?_embed&per_page=100`).then(res => res.json()),
+      fetch(`${API_URL}/wp-json/wp/v2/property-types`).then(res => res.json())
     ])
     .then(([propData, typeData]) => {
-      setProperties(propData);
+      setProperties(Array.isArray(propData) ? propData : []);
       setPropertyTypes(Array.isArray(typeData) ? typeData : []);
       setIsLoading(false);
     })
