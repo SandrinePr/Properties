@@ -17,13 +17,13 @@ const PropertyDetail: React.FC = () => {
         const data = await res.json();
         setProperty(data);
       } catch (err) {
-        console.error("Fout bij ophalen property:", err);
+        console.error("Fout bij ophalen:", err);
       }
     };
     fetchProperty();
   }, [id]);
 
-  if (!property) return <div className="loading">Laden...</div>;
+  if (!property) return <div className="pd-loading">Laden...</div>;
 
   const featuredImage = property._embedded?.['wp:featuredmedia']?.[0]?.source_url;
   const gallery = Array.isArray(property.acf.property_gallery) ? property.acf.property_gallery : [];
@@ -42,77 +42,70 @@ const PropertyDetail: React.FC = () => {
   return (
     <div className="pd-page">
       <div className="pd-container">
-        {/* Navigatie bovenop */}
-        <header className="pd-header">
-          <Link to="/" className="pd-back-link">← Terug naar aanbod</Link>
-          <h1 className="pd-title">{property.title.rendered}</h1>
-        </header>
+        {/* Header met titel */}
+        <div className="pd-header">
+          <Link to="/" className="pd-back-link">← Terug naar overzicht</Link>
+          <h1 className="pd-main-title">{property.title.rendered}</h1>
+        </div>
 
-        {/* Sectie 1: Foto Grid */}
-        <div className="pd-media-section">
-          <div className="pd-grid">
-            <div className="pd-grid__main" onClick={() => setPhotoIndex(0)}>
-              <img src={allImages[0]} alt="Hoofdfoto" referrerPolicy="no-referrer" />
-            </div>
-            <div className="pd-grid__side">
-              {allImages.slice(1, 3).map((img, idx) => (
-                <div key={idx} className="pd-grid__thumb" onClick={() => setPhotoIndex(idx + 1)}>
-                  <img src={img} alt={`Detail ${idx + 1}`} referrerPolicy="no-referrer" />
-                </div>
-              ))}
-            </div>
+        {/* Sectie 1: De Foto Grid */}
+        <div className="pd-grid">
+          <div className="pd-grid__main" onClick={() => setPhotoIndex(0)}>
+            <img src={allImages[0]} alt="Hero" referrerPolicy="no-referrer" />
+          </div>
+          <div className="pd-grid__side">
+            {allImages.slice(1, 3).map((img, idx) => (
+              <div key={idx} className="pd-grid__thumb" onClick={() => setPhotoIndex(idx + 1)}>
+                <img src={img} alt="Detail" referrerPolicy="no-referrer" />
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* Sectie 2: De tekstkaart (Gegarandeerd onder de grid) */}
-        <main className="pd-content-section">
-          <div className="pd-card">
-            <section className="pd-info-block">
-              <h2 className="pd-info-block__title">Basis Kenmerken</h2>
-              <div className="pd-stats">
-                <div className="pd-stat">
-                  <span className="pd-stat__label">PRIJS</span>
-                  <span className="pd-stat__value">€ {Number(property.acf.price).toLocaleString('nl-NL')}</span>
-                </div>
-                <div className="pd-stat">
-                  <span className="pd-stat__label">SLAAPKAMERS</span>
-                  <span className="pd-stat__value">{property.acf.bedrooms}</span>
-                </div>
-                <div className="pd-stat">
-                  <span className="pd-stat__label">OPPERVLAKTE</span>
-                  <span className="pd-stat__value">{property.acf.square_footage} m²</span>
-                </div>
-                <div className="pd-stat">
-                  <span className="pd-stat__label">BOUWJAAR</span>
-                  <span className="pd-stat__value">{property.acf.construction_year}</span>
-                </div>
+        {/* Sectie 2: De Informatie (Gegarandeerd onder de foto's) */}
+        <div className="pd-content-card">
+          <section className="pd-info-section">
+            <h2 className="pd-info-title">Basis Kenmerken</h2>
+            <div className="pd-stats">
+              <div className="pd-stat-item">
+                <span className="pd-stat-label">PRIJS</span>
+                <span className="pd-stat-value">€ {Number(property.acf.price).toLocaleString('nl-NL')}</span>
               </div>
-            </section>
+              <div className="pd-stat-item">
+                <span className="pd-stat-label">SLAAPKAMERS</span>
+                <span className="pd-stat-value">{property.acf.bedrooms}</span>
+              </div>
+              <div className="pd-stat-item">
+                <span className="pd-stat-label">OPPERVLAKTE</span>
+                <span className="pd-stat-value">{property.acf.square_footage} m²</span>
+              </div>
+              <div className="pd-stat-item">
+                <span className="pd-stat-label">BOUWJAAR</span>
+                <span className="pd-stat-value">{property.acf.construction_year}</span>
+              </div>
+            </div>
+          </section>
 
-            {property.acf.description && (
-              <section className="pd-info-block">
-                <h2 className="pd-info-block__title">Beschrijving</h2>
-                <p className="pd-description">{property.acf.description}</p>
-              </section>
-            )}
-          </div>
-        </main>
+          {property.acf.description && (
+            <section className="pd-info-section">
+              <h2 className="pd-info-title">Beschrijving</h2>
+              <p className="pd-description-text">{property.acf.description}</p>
+            </section>
+          )}
+        </div>
       </div>
 
       {/* Lightbox Viewer */}
       {photoIndex !== null && (
         <div className="pd-viewer" onClick={() => setPhotoIndex(null)}>
           <button className="pd-viewer__close">✕ Sluiten</button>
-          
           <div className="pd-viewer__stage">
-            <button className="pd-viewer__arrow" onClick={prevPhoto}>‹</button>
-            <div className="pd-viewer__img-container" onClick={(e) => e.stopPropagation()}>
-              <img src={allImages[photoIndex]} alt="Groot" />
-              <div className="pd-viewer__counter">
-                {photoIndex + 1} / {allImages.length}
-              </div>
+            <button className="pd-viewer__nav" onClick={prevPhoto}>‹</button>
+            <div className="pd-viewer__img-box" onClick={(e) => e.stopPropagation()}>
+              <img src={allImages[photoIndex]} alt="Groot formaat" />
+              <div className="pd-viewer__counter">{photoIndex + 1} / {allImages.length}</div>
             </div>
-            <button className="pd-viewer__arrow" onClick={nextPhoto}>›</button>
+            <button className="pd-viewer__nav" onClick={nextPhoto}>›</button>
           </div>
         </div>
       )}
