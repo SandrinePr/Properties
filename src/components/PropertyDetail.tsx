@@ -37,7 +37,7 @@ const PropertyDetail: React.FC = () => {
         const res = await fetch(`${API_URL}/wp-json/wp/v2/property/${id}?_embed`, { headers });
         const data = await res.json();
         setProperty(data);
-      } catch (err) { console.error(err); }
+      } catch (err) { console.error("Fetch error:", err); }
     };
     fetchProperty();
   }, [id]);
@@ -59,76 +59,74 @@ const PropertyDetail: React.FC = () => {
   };
 
   return (
-    <div className="property-detail">
-      <div className="property-detail__container">
-        <Link to="/" className="property-detail__back">← Terug naar Overzicht</Link>
-        
-        <h1 className="property-detail__title">{property.title.rendered}</h1>
+    <div className="property-page">
+      <div className="property-container">
+        <Link to="/" className="back-link">← Terug naar aanbod</Link>
+        <h1 className="main-title">{property.title.rendered}</h1>
 
-        {/* Grid Sectie - Strikt gescheiden van tekst */}
-        <div className="property-grid">
-          <div className="property-grid__main" onClick={() => setPhotoIndex(0)}>
+        {/* Nieuwe Grid-structuur: Geen vaste hoogte om zoom te voorkomen */}
+        <div className="media-grid">
+          <div className="media-grid__primary" onClick={() => setPhotoIndex(0)}>
             <img src={allImages[0]} alt="Hero" referrerPolicy="no-referrer" />
           </div>
-          <div className="property-grid__side">
-            {allImages.slice(1, 4).map((img, idx) => (
-              <div key={idx} className="property-grid__item" onClick={() => setPhotoIndex(idx + 1)}>
+          <div className="media-grid__secondary">
+            {allImages.slice(1, 3).map((img, idx) => (
+              <div key={idx} className="media-grid__thumb" onClick={() => setPhotoIndex(idx + 1)}>
                 <img src={img} alt="Detail" referrerPolicy="no-referrer" />
               </div>
             ))}
           </div>
         </div>
 
-        {/* Informatie Sectie - Nu gegarandeerd onder de grid */}
-        <div className="property-content">
-          <section className="property-section">
-            <h2 className="property-section__title">Basis Kenmerken</h2>
-            <div className="property-stats">
-              <div className="stat-box">
-                <span className="stat-label">PRIJS</span>
-                <span className="stat-value">€ {Number(property.acf.price).toLocaleString('nl-NL')}</span>
+        {/* Info-sectie: Expliciet gescheiden om overlap te voorkomen */}
+        <div className="info-wrap">
+          <section className="info-section">
+            <h2 className="info-section__heading">Basis Kenmerken</h2>
+            <div className="stats-row">
+              <div className="stat-item">
+                <span className="label">PRIJS</span>
+                <span className="value">€ {Number(property.acf.price).toLocaleString('nl-NL')}</span>
               </div>
-              <div className="stat-box">
-                <span className="stat-label">SLAAPKAMERS</span>
-                <span className="stat-value">{property.acf.bedrooms}</span>
+              <div className="stat-item">
+                <span className="label">SLAAPKAMERS</span>
+                <span className="value">{property.acf.bedrooms}</span>
               </div>
-              <div className="stat-box">
-                <span className="stat-label">OPPERVLAKTE</span>
-                <span className="stat-value">{property.acf.square_footage} m²</span>
+              <div className="stat-item">
+                <span className="label">OPPERVLAKTE</span>
+                <span className="value">{property.acf.square_footage} m²</span>
               </div>
-              <div className="stat-box">
-                <span className="stat-label">BOUWJAAR</span>
-                <span className="stat-value">{property.acf.construction_year}</span>
+              <div className="stat-item">
+                <span className="label">BOUWJAAR</span>
+                <span className="value">{property.acf.construction_year}</span>
               </div>
             </div>
           </section>
 
           {property.acf.description && (
-            <section className="property-section">
-              <h2 className="property-section__title">Beschrijving</h2>
-              <p className="property-description">{property.acf.description}</p>
+            <section className="info-section">
+              <h2 className="info-section__heading">Beschrijving</h2>
+              <p className="description-body">{property.acf.description}</p>
             </section>
           )}
         </div>
       </div>
 
-      {/* Lightbox Overlay - Alleen zichtbaar bij klik */}
+      {/* Lightbox: De tekst staat nu in een aparte footer-balk onder het beeld */}
       {photoIndex !== null && (
-        <div className="lightbox" onClick={() => setPhotoIndex(null)}>
-          <button className="lightbox__close">✕ Sluiten</button>
+        <div className="overlay-viewer" onClick={() => setPhotoIndex(null)}>
+          <button className="overlay-viewer__close">✕</button>
           
-          <button className="lightbox__arrow prev" onClick={prevPhoto}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 18l-6-6 6-6"/></svg>
-          </button>
-
-          <div className="lightbox__content">
-            <img src={allImages[photoIndex]} alt="Large view" onClick={(e) => e.stopPropagation()} />
-            <div className="lightbox__counter">{photoIndex + 1} / {allImages.length}</div>
+          <div className="overlay-viewer__stage">
+            <button className="nav-btn prev" onClick={prevPhoto}>‹</button>
+            <div className="image-holder">
+              <img src={allImages[photoIndex]} alt="Zoom" onClick={(e) => e.stopPropagation()} />
+            </div>
+            <button className="nav-btn next" onClick={nextPhoto}>›</button>
           </div>
 
-          <button className="lightbox__arrow next" onClick={nextPhoto}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 18l6-6-6-6"/></svg>
-          </button>
+          <div className="overlay-viewer__footer">
+            <div className="counter-pill">{photoIndex + 1} / {allImages.length}</div>
+          </div>
         </div>
       )}
     </div>

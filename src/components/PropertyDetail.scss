@@ -1,157 +1,125 @@
-.property-detail {
-  background: #f8f9fa;
+.property-page {
+  background: #fcfcfc;
+  padding: 40px 15px;
   min-height: 100vh;
-  padding: 40px 20px;
-
-  &__container {
-    max-width: 1200px;
-    margin: 0 auto;
-    background: white;
-    padding: 40px;
-    border-radius: 24px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-  }
-
-  &__back {
-    display: inline-block;
-    margin-bottom: 24px;
-    color: #6c757d;
-    text-decoration: none;
-    font-weight: 600;
-  }
-
-  &__title {
-    font-size: 2.5rem;
-    color: #212529;
-    margin-bottom: 32px;
-  }
 }
 
-/* De Grid - Met vaste hoogte om overloop te voorkomen */
-.property-grid {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 12px;
-  height: 500px; // Dwingt een limiet af
-  margin-bottom: 48px; // Creëert harde witruimte voor de tekst
-  overflow: hidden;
-  border-radius: 16px;
+.property-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  background: #fff;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+}
 
-  &__main {
+.main-title {
+  font-size: 2.8rem;
+  margin-bottom: 30px;
+  color: #1a1a1a;
+}
+
+/* De Grid: Geen fixed height meer. Gebruikt aspect-ratio om zoom te stoppen */
+.media-grid {
+  display: grid;
+  grid-template-columns: 1.8fr 1fr;
+  gap: 12px;
+  margin-bottom: 50px; // Dwingt ruimte voor tekst af
+
+  &__primary {
     cursor: pointer;
-    img { width: 100%; height: 100%; object-fit: cover; }
+    img {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 4 / 3; // Houdt de verhouding vast
+      object-fit: cover;
+      border-radius: 8px;
+    }
   }
 
-  &__side {
-    display: grid;
-    grid-template-rows: repeat(3, 1fr);
+  &__secondary {
+    display: flex;
+    flex-direction: column;
     gap: 12px;
   }
 
-  &__item {
+  &__thumb {
     cursor: pointer;
-    overflow: hidden;
-    img { width: 100%; height: 100%; object-fit: cover; }
+    height: 100%;
+    img {
+      width: 100%;
+      height: 100%;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+      border-radius: 8px;
+    }
   }
 }
 
-/* Tekst Secties - Nu altijd leesbaar */
-.property-content {
-  padding-top: 20px;
-  border-top: 1px solid #eee;
+/* Info Sectie: Nooit meer overlap */
+.info-wrap {
+  display: block;
+  clear: both;
+  padding-top: 30px;
 }
 
-.property-section {
-  margin-bottom: 40px;
-
-  &__title {
-    font-size: 1.5rem;
-    margin-bottom: 24px;
-    color: #343a40;
-  }
+.info-section {
+  margin-bottom: 50px;
+  &__heading { font-size: 1.4rem; margin-bottom: 25px; color: #333; }
 }
 
-.property-stats {
+.stats-row {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  border-top: 1px solid #eee;
+  padding-top: 25px;
 }
 
-.stat-box {
-  padding: 16px 0;
-  border-bottom: 2px solid #f1f3f5;
-
-  .stat-label {
-    display: block;
-    font-size: 0.75rem;
-    color: #adb5bd;
-    letter-spacing: 1px;
-    margin-bottom: 4px;
-  }
-
-  .stat-value {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: #212529;
-  }
+.stat-item {
+  .label { display: block; font-size: 0.7rem; color: #888; letter-spacing: 1px; }
+  .value { font-size: 1.2rem; font-weight: 700; color: #1a1a1a; margin-top: 5px; display: block; }
 }
 
-.property-description {
-  line-height: 1.7;
-  color: #495057;
-  white-space: pre-line;
-}
-
-/* Lightbox - Zweeft bovenop en blokkeert scrollen niet */
-.lightbox {
+/* Viewer: Tekst gegarandeerd onder beeld */
+.overlay-viewer {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.95);
+  background: rgba(0,0,0,0.97);
   z-index: 10000;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
 
-  &__content {
-    position: relative;
-    max-width: 90vw;
-    max-height: 80vh;
-    img { max-width: 100%; max-height: 80vh; border-radius: 8px; }
+  &__stage {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
   }
 
-  &__counter {
-    color: white;
-    text-align: center;
-    margin-top: 20px;
-    font-size: 0.9rem;
+  .image-holder {
+    max-width: 85%;
+    max-height: 80vh;
+    img { max-width: 100%; max-height: 80vh; border-radius: 4px; }
+  }
+
+  &__footer {
+    height: 100px; // Vaste balk onderaan voor de teller
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .counter-pill { color: #fff; background: rgba(255,255,255,0.1); padding: 8px 20px; border-radius: 20px; }
+
+  .nav-btn {
+    background: none; border: none; color: white; font-size: 4rem; cursor: pointer;
+    &:hover { color: #ccc; }
   }
 
   &__close {
-    position: absolute;
-    top: 30px;
-    right: 30px;
-    background: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 50px;
-    cursor: pointer;
-    font-weight: bold;
-  }
-
-  &__arrow {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background: rgba(255,255,255,0.1);
-    border: none;
-    color: white;
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    cursor: pointer;
-    &.prev { left: 40px; }
-    &.next { right: 40px; }
-    svg { width: 30px; height: 30px; }
-    &:hover { background: rgba(255,255,255,0.2); }
+    position: absolute; top: 30px; right: 30px; background: #fff; border: none;
+    width: 45px; height: 45px; border-radius: 50%; cursor: pointer; font-weight: bold;
   }
 }
