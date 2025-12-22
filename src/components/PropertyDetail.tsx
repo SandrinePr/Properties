@@ -10,13 +10,14 @@ interface PropertyDetailData {
     bedrooms: string;
     bathrooms: string;
     square_footage: string;
-    has_garden: boolean;
-    has_pool: boolean;
-    has_garage: boolean;
-    has_driveway: boolean;
+    // Namen aangepast naar jouw API data:
+    garden: boolean; 
+    pool: boolean;
+    garage: boolean;
+    driveway: boolean;
     construction_year: string;
     description?: string;
-    // Gebruik de exacte Field Name: property_gallery
+    // Naam aangepast naar property_gallery:
     property_gallery: string[] | false; 
   };
   _embedded?: {
@@ -42,10 +43,8 @@ const PropertyDetail: React.FC = () => {
 
   useEffect(() => {
     if (!id) return;
-
     const API_URL = import.meta.env.VITE_API_URL || 'http://headless-property-wp.local';
     const headers = new Headers();
-    // Headers voor de tunnel autorisatie
     headers.set('Authorization', 'Basic ' + btoa('staple:temporary'));
 
     fetch(`${API_URL}/wp-json/wp/v2/property/${id}?_embed`, { headers })
@@ -70,13 +69,11 @@ const PropertyDetail: React.FC = () => {
   const { acf } = property;
   const propertyTypes = property._embedded?.['wp:term']?.[0] || [];
 
-  // LOGICA: Haal de hoofdafbeelding van de home-card op
+  // LOGICA VOOR DE FOTO'S
   const featuredImage = property._embedded?.['wp:featuredmedia']?.[0]?.source_url;
-  
-  // Haal de extra foto's op uit de ACF Gallery
   const galleryImages = Array.isArray(acf.property_gallery) ? acf.property_gallery : [];
   
-  // Voeg ze samen: featured image eerst, daarna de rest (zonder dubbelen)
+  // Combineer featured image met de rest
   const allImages = featuredImage 
     ? [featuredImage, ...galleryImages.filter(img => img !== featuredImage)]
     : galleryImages;
@@ -92,7 +89,7 @@ const PropertyDetail: React.FC = () => {
           {property.title.rendered}
         </h1>
 
-        {/* De Gecombineerde Galerij Loop */}
+        {/* De Galerij Grid */}
         {allImages.length > 0 ? (
           <div className="property-detail__gallery">
             {allImages.map((url, index) => (
@@ -100,7 +97,7 @@ const PropertyDetail: React.FC = () => {
                 <img 
                   src={url} 
                   alt={`${property.title.rendered} - foto ${index + 1}`} 
-                  crossOrigin="anonymous"
+                  crossOrigin="anonymous" 
                 />
               </div>
             ))}
@@ -123,23 +120,13 @@ const PropertyDetail: React.FC = () => {
         <section className="property-detail__section">
           <h2>Extra Voorzieningen</h2>
           <div className="property-detail__grid">
-            <div>{acf.has_garden ? '✅' : '❌'} Tuin</div>
-            <div>{acf.has_pool ? '✅' : '❌'} Zwembad</div>
-            <div>{acf.has_garage ? '✅' : '❌'} Garage</div>
-            <div>{acf.has_driveway ? '✅' : '❌'} Oprit</div>
+            {/* Namen hier ook aangepast naar de API: garden, pool, etc. */}
+            <div>{acf.garden ? '✅' : '❌'} Tuin</div>
+            <div>{acf.pool ? '✅' : '❌'} Zwembad</div>
+            <div>{acf.garage ? '✅' : '❌'} Garage</div>
+            <div>{acf.driveway ? '✅' : '❌'} Oprit</div>
           </div>
         </section>
-
-        {propertyTypes.length > 0 && (
-          <section className="property-detail__section">
-            <h2>Type(s)</h2>
-            <div className="property-detail__tags">
-              {propertyTypes.map(term => (
-                <span key={term.id}>{term.name}</span>
-              ))}
-            </div>
-          </section>
-        )}
 
         {acf.description && (
           <section className="property-detail__section">
