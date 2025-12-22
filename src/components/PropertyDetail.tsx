@@ -93,12 +93,11 @@ const PropertyDetail: React.FC = () => {
           <div className="property-detail__gallery">
             {allImages.map((url, index) => (
               <div key={`${url}-${index}`} className="property-detail__gallery-item">
-                <img 
-                  src={url} 
-                  alt={`${property.title.rendered} - foto ${index + 1}`} 
-                  // Forceert de browser om de tunnel-auth te gebruiken voor afbeeldingen
-                  loading="lazy"
-                />
+<img 
+  src={url} 
+  alt={`${property.title.rendered} - foto ${index + 1}`} 
+  referrerPolicy="no-referrer"
+/>
               </div>
             ))}
           </div>
