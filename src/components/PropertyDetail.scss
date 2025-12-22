@@ -1,26 +1,27 @@
-.pd-master-container {
-  max-width: 1140px;
-  margin: 0 auto;
-  padding: 40px 20px;
-  display: flex;
-  flex-direction: column; // Dwingt tekst fysiek ONDER de grid
-  gap: 30px;
+.funda-layout {
+  background: #fcfcfc;
+  min-height: 100vh;
+  padding: 40px 15px;
+
+  .funda-container {
+    max-width: 1140px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 25px; // Garandeert fysieke ruimte tussen grid en tekst
+  }
 }
 
-.pd-main-title {
-  font-size: 2.5rem;
-  font-weight: 800;
-  margin-top: 10px;
-}
+.main-title { font-size: 2.5rem; font-weight: 800; margin-bottom: 5px; }
 
-/* DE GRID FIX: Harde 50/50 verdeling voor de rechterkant */
-.pd-photo-grid {
+/* DE GRID: Side images zijn nu exact 50% van de hoogte van de main */
+.photo-grid {
   display: grid;
   grid-template-columns: 2fr 1fr;
   gap: 12px;
   width: 100%;
 
-  &__left {
+  &__main {
     cursor: pointer;
     border-radius: 12px;
     overflow: hidden;
@@ -28,13 +29,13 @@
     img { width: 100%; height: 100%; object-fit: cover; display: block; }
   }
 
-  &__right {
+  &__side {
     display: grid;
     grid-template-rows: 1fr 1fr; // Verdeelt rechterkant exact in tweeën
     gap: 12px;
   }
 
-  &__small-box {
+  &__thumb {
     cursor: pointer;
     border-radius: 12px;
     overflow: hidden;
@@ -42,16 +43,15 @@
   }
 }
 
-/* DE KAART: Nooit meer overlap */
-.pd-info-card {
+/* CONTENT: Nooit meer overlap */
+.info-card {
   background: white;
   padding: 40px;
   border-radius: 16px;
   box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-  border: 1px solid #eee;
 }
 
-.pd-stats-row {
+.stats-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 20px;
@@ -60,36 +60,34 @@
   margin-top: 20px;
 }
 
-.pd-stat {
-  .pd-label { display: block; font-size: 0.7rem; color: #999; }
-  .pd-value { font-size: 1.2rem; font-weight: 700; color: #111; margin-top: 5px; }
+.stat {
+  .label { display: block; font-size: 0.75rem; color: #999; }
+  .value { font-size: 1.2rem; font-weight: 700; color: #111; }
 }
 
-.pd-description { line-height: 1.8; color: #444; white-space: pre-wrap; margin-top: 15px; }
-
-/* DE LIGHTBOX: De pijltjes staan hier nu los van de paginaflow */
-.pd-lightbox-overlay {
-  position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 99999;
+/* VIEWER: Pijltjes staan hier nu los van de paginaflow */
+.viewer-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 9999;
   display: flex; align-items: center; justify-content: center;
 
-  .pd-nav-btn {
+  .nav-arrow {
     position: absolute; top: 50%; transform: translateY(-50%);
     background: rgba(255,255,255,0.1); border: none; color: white;
     font-size: 5rem; padding: 20px; cursor: pointer; border-radius: 50%;
-    z-index: 100001; transition: 0.2s;
+    z-index: 10000;
     &:hover { background: rgba(255,255,255,0.2); }
-    &.prev { left: 30px; }
-    &.next { right: 30px; }
+    &.prev { left: 40px; }
+    &.next { right: 40px; }
   }
 
-  .pd-lightbox-content {
-    text-align: center; max-width: 85%;
+  .viewer-content {
+    text-align: center; max-width: 80%;
     img { max-width: 100%; max-height: 85vh; border-radius: 4px; }
-    .pd-img-count { color: white; margin-top: 15px; font-weight: bold; }
+    .counter { color: white; margin-top: 15px; font-weight: bold; }
   }
 
-  .pd-close-x {
+  .close-viewer {
     position: absolute; top: 30px; right: 30px; background: white; border: none;
-    padding: 10px 25px; border-radius: 40px; font-weight: bold; cursor: pointer; z-index: 100002;
+    padding: 10px 25px; border-radius: 40px; font-weight: bold; cursor: pointer;
   }
 }
