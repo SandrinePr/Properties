@@ -21,7 +21,7 @@ const PropertyDetail: React.FC = () => {
     fetchProperty();
   }, [id]);
 
-  if (!property) return <div className="pd-loading">Laden...</div>;
+  if (!property) return <div className="loading">Laden...</div>;
 
   const featuredImage = property._embedded?.['wp:featuredmedia']?.[0]?.source_url;
   const gallery = Array.isArray(property.acf.property_gallery) ? property.acf.property_gallery : [];
@@ -40,71 +40,63 @@ const PropertyDetail: React.FC = () => {
   return (
     <div className="pd-page">
       <div className="pd-container">
-        <Link to="/" className="pd-back">← Terug naar aanbod</Link>
+        <Link to="/" className="pd-back">← Terug</Link>
         <h1 className="pd-title">{property.title.rendered}</h1>
 
-        {/* DE GRID: Harde 2-koloms layout */}
-        <div className="pd-image-grid">
-          <div className="pd-main-img" onClick={() => setPhotoIndex(0)}>
-            <img src={allImages[0]} alt="Hoofdfoto" referrerPolicy="no-referrer" />
+        {/* DE GRID SECTIE */}
+        <div className="pd-grid">
+          <div className="pd-grid__main" onClick={() => setPhotoIndex(0)}>
+            <img src={allImages[0]} alt="Hero" referrerPolicy="no-referrer" />
           </div>
-          <div className="pd-side-imgs">
+          <div className="pd-grid__side">
             {allImages.slice(1, 3).map((img, idx) => (
-              <div key={idx} className="pd-thumb-wrapper" onClick={() => setPhotoIndex(idx + 1)}>
-                <img src={img} alt={`Detail ${idx + 1}`} referrerPolicy="no-referrer" />
+              <div key={idx} className="pd-grid__thumb" onClick={() => setPhotoIndex(idx + 1)}>
+                <img src={img} alt="Thumb" referrerPolicy="no-referrer" />
               </div>
             ))}
           </div>
         </div>
 
-        {/* CONTENT: Staat gegarandeerd onder de grid */}
-        <div className="pd-content">
+        {/* DE CONTENT SECTIE */}
+        <div className="pd-info">
           <div className="pd-card">
-            <section className="pd-section">
-              <h2>Basis Kenmerken</h2>
-              <div className="pd-stats">
-                <div className="pd-stat">
-                  <span className="label">PRIJS</span>
-                  <span className="value">€ {Number(property.acf.price).toLocaleString('nl-NL')}</span>
-                </div>
-                <div className="pd-stat">
-                  <span className="label">SLAAPKAMERS</span>
-                  <span className="value">{property.acf.bedrooms}</span>
-                </div>
-                <div className="pd-stat">
-                  <span className="label">OPPERVLAKTE</span>
-                  <span className="value">{property.acf.square_footage} m²</span>
-                </div>
-                <div className="pd-stat">
-                  <span className="label">BOUWJAAR</span>
-                  <span className="value">{property.acf.construction_year}</span>
-                </div>
+            <h2>Basis Kenmerken</h2>
+            <div className="pd-stats">
+              <div className="pd-stat">
+                <span className="label">PRIJS</span>
+                <span className="value">€ {Number(property.acf.price).toLocaleString('nl-NL')}</span>
               </div>
-            </section>
-
-            {property.acf.description && (
-              <section className="pd-section">
-                <h2>Beschrijving</h2>
-                <p className="pd-description-text">{property.acf.description}</p>
-              </section>
-            )}
+              <div className="pd-stat">
+                <span className="label">M²</span>
+                <span className="value">{property.acf.square_footage}</span>
+              </div>
+              <div className="pd-stat">
+                <span className="label">SLAAPKAMERS</span>
+                <span className="value">{property.acf.bedrooms}</span>
+              </div>
+              <div className="pd-stat">
+                <span className="label">BOUWJAAR</span>
+                <span className="value">{property.acf.construction_year}</span>
+              </div>
+            </div>
+            <div className="pd-description">
+              <h3>Beschrijving</h3>
+              <p>{property.acf.description}</p>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* LIGHTBOX: Met werkende pijltjes, los van de grid */}
+      {/* DE VIEWER */}
       {photoIndex !== null && (
-        <div className="pd-lightbox" onClick={() => setPhotoIndex(null)}>
-          <button className="pd-close-btn">✕ Sluiten</button>
-          
-          <button className="pd-nav-arrow prev" onClick={prevPhoto}>‹</button>
-          
-          <div className="pd-lightbox-content" onClick={(e) => e.stopPropagation()}>
-            <img src={allImages[photoIndex]} alt="Vergroting" />
-            <div className="pd-counter">{photoIndex + 1} / {allImages.length}</div>
+        <div className="pd-viewer" onClick={() => setPhotoIndex(null)}>
+          <button className="pd-viewer__close">✕</button>
+          <button className="pd-viewer__nav prev" onClick={prevPhoto}>‹</button>
+          <div className="pd-viewer__content" onClick={(e) => e.stopPropagation()}>
+            <img src={allImages[photoIndex]} alt="Groot" />
+            <div className="pd-viewer__counter">{photoIndex + 1} / {allImages.length}</div>
           </div>
-
-          <button className="pd-nav-arrow next" onClick={nextPhoto}>›</button>
+          <button className="pd-viewer__nav next" onClick={nextPhoto}>›</button>
         </div>
       )}
     </div>
