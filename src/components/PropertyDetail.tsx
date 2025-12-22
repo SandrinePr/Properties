@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
 import './PropertyDetail.scss';
 
 interface PropertyDetailData {
@@ -11,13 +10,13 @@ interface PropertyDetailData {
     bedrooms: string;
     bathrooms: string;
     square_footage: string;
-    garden: boolean;
+    garden: boolean; 
     pool: boolean;
     garage: boolean;
     driveway: boolean;
     construction_year: string;
     description?: string;
-    property_gallery: string[] | false;
+    property_gallery: string[] | false; 
   };
   _embedded?: {
     'wp:featuredmedia'?: [{ source_url: string }];
@@ -39,8 +38,6 @@ const PropertyDetail: React.FC = () => {
   const [property, setProperty] = useState<PropertyDetailData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
-  // Slider state
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
@@ -76,14 +73,8 @@ const PropertyDetail: React.FC = () => {
     ? [featuredImage, ...galleryImages.filter(img => img !== featuredImage)]
     : galleryImages;
 
-  // Slider navigatie functies
-  const nextSlide = () => {
-    setCurrentIndex((prev) => (prev === allImages.length - 1 ? 0 : prev + 1));
-  };
-
-  const prevSlide = () => {
-    setCurrentIndex((prev) => (prev === 0 ? allImages.length - 1 : prev - 1));
-  };
+  const nextSlide = () => setCurrentIndex((prev) => (prev === allImages.length - 1 ? 0 : prev + 1));
+  const prevSlide = () => setCurrentIndex((prev) => (prev === 0 ? allImages.length - 1 : prev - 1));
 
   return (
     <div className="property-detail">
@@ -92,31 +83,20 @@ const PropertyDetail: React.FC = () => {
       <div className="property-detail__card">
         <h1 className="property-detail__title">{property.title.rendered}</h1>
 
-        {/* De Slider Component */}
         <div className="property-slider">
           {allImages.length > 0 ? (
             <div className="property-slider__container">
-              <AnimatePresence mode="wait">
-                <motion.img
-                  key={currentIndex}
-                  src={allImages[currentIndex]}
-                  initial={{ opacity: 0, x: 50 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -50 }}
-                  transition={{ duration: 0.3 }}
-                  alt={`Foto ${currentIndex + 1}`}
-                  className="property-slider__image"
-                  referrerPolicy="no-referrer"
-                />
-              </AnimatePresence>
-
+              <img 
+                src={allImages[currentIndex]} 
+                alt={`${property.title.rendered} - foto ${currentIndex + 1}`} 
+                className="property-slider__image"
+                referrerPolicy="no-referrer"
+              />
               {allImages.length > 1 && (
                 <>
-                  <button className="property-slider__btn property-slider__btn--prev" onClick={prevSlide}>❮</button>
-                  <button className="property-slider__btn property-slider__btn--next" onClick={nextSlide}>❯</button>
-                  <div className="property-slider__counter">
-                    {currentIndex + 1} / {allImages.length}
-                  </div>
+                  <button className="property-slider__btn prev" onClick={prevSlide}>❮</button>
+                  <button className="property-slider__btn next" onClick={nextSlide}>❯</button>
+                  <div className="property-slider__counter">{currentIndex + 1} / {allImages.length}</div>
                 </>
               )}
             </div>
@@ -128,11 +108,11 @@ const PropertyDetail: React.FC = () => {
         <section className="property-detail__section">
           <h2>Basis Kenmerken</h2>
           <div className="property-detail__grid">
-            <div><strong>Prijs: </strong>{formatPrice(acf.price)}</div>
-            <div><strong>Slaapkamers: </strong>{acf.bedrooms}</div>
-            <div><strong>Badkamers: </strong>{acf.bathrooms}</div>
-            <div><strong>Oppervlakte: </strong>{acf.square_footage} m²</div>
-            <div><strong>Bouwjaar: </strong>{acf.construction_year || 'Onbekend'}</div>
+            <div><strong>PRIJS:</strong>{formatPrice(acf.price)}</div>
+            <div><strong>SLAAPKAMERS:</strong>{acf.bedrooms}</div>
+            <div><strong>BADKAMERS:</strong>{acf.bathrooms}</div>
+            <div><strong>OPPERVLAKTE:</strong>{acf.square_footage} m²</div>
+            <div><strong>BOUWJAAR:</strong>{acf.construction_year || '2006'}</div>
           </div>
         </section>
 
