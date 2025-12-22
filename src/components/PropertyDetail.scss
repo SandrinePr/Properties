@@ -1,133 +1,190 @@
-.property-detail-page {
-  background: #fdfdfd;
-  padding: 40px 20px;
+.pd-page {
+  background: #fcfcfc;
   min-height: 100vh;
+  padding: 40px 20px;
+  font-family: sans-serif;
 }
 
-.content-container {
+.pd-container {
   max-width: 1140px;
   margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 30px; // Dit zorgt voor de fysieke ruimte tussen alle onderdelen
 }
 
-.property-main-title {
-  font-size: 2.8rem;
+.pd-back-link {
+  color: #666;
+  text-decoration: none;
+  font-weight: 600;
+  display: inline-block;
+  margin-bottom: 15px;
+}
+
+.pd-title {
+  font-size: 2.5rem;
   font-weight: 800;
-  margin-bottom: 30px;
-  color: #212121;
+  color: #111;
+  margin: 0;
 }
 
-/* De Grid Fix: Gebruikt aspect-ratio op de container */
-.funda-style-grid {
+/* De Grid Fix: Geen zoom, perfecte uitlijning */
+.pd-media-section {
+  width: 100%;
+}
+
+.pd-grid {
   display: grid;
   grid-template-columns: 2fr 1fr;
-  gap: 10px;
+  gap: 12px;
   width: 100%;
-  margin-bottom: 60px; // Voorkomt overlap met tekst
 
-  &__hero {
+  &__main {
     cursor: pointer;
-    border-radius: 12px 0 0 12px;
+    border-radius: 12px;
     overflow: hidden;
-    aspect-ratio: 16 / 10; // Dwingt een verhouding af zonder zoom
+    aspect-ratio: 3 / 2; // Houdt de verhouding vast tegen inzoomen
     
     img {
       width: 100%;
       height: 100%;
-      object-fit: cover; 
+      object-fit: cover;
+      display: block;
     }
   }
 
-  &__gallery {
+  &__side {
     display: grid;
     grid-template-rows: 1fr 1fr;
-    gap: 10px;
+    gap: 12px;
   }
 
   &__thumb {
     cursor: pointer;
+    border-radius: 12px;
     overflow: hidden;
-    border-radius: 0 12px 12px 0;
-    &:first-child { border-radius: 0 12px 0 0; }
-    &:last-child { border-radius: 0 0 12px 0; }
-
+    
     img {
       width: 100%;
       height: 100%;
       object-fit: cover;
+      display: block;
     }
   }
 }
 
-/* Tekst Styling */
-.property-info-sheet {
+/* De Tekstkaart: Altijd onder de foto's */
+.pd-content-section {
+  width: 100%;
+}
+
+.pd-card {
   background: white;
   padding: 40px;
-  border-radius: 16px;
-  box-shadow: 0 2px 15px rgba(0,0,0,0.04);
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.04);
 }
 
-.info-block {
-  margin-bottom: 50px;
-  &__title { font-size: 1.6rem; margin-bottom: 30px; color: #333; }
+.pd-info-block {
+  margin-bottom: 40px;
+  &:last-child { margin-bottom: 0; }
+
+  &__title {
+    font-size: 1.5rem;
+    margin-bottom: 25px;
+    color: #222;
+  }
 }
 
-.features-grid {
+.pd-stats {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 30px;
-  border-top: 1px solid #eee;
-  padding-top: 30px;
+  gap: 20px;
+  border-top: 1px solid #f0f0f0;
+  padding-top: 25px;
 }
 
-.feature-item {
-  &__label { display: block; font-size: 0.75rem; color: #999; letter-spacing: 0.5px; margin-bottom: 5px; }
-  &__value { font-size: 1.3rem; font-weight: 700; color: #111; }
+.pd-stat {
+  &__label {
+    display: block;
+    font-size: 0.75rem;
+    color: #999;
+    letter-spacing: 0.5px;
+    margin-bottom: 5px;
+  }
+  &__value {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #111;
+  }
 }
 
-.property-text-content {
+.pd-description {
   line-height: 1.8;
-  color: #555;
-  font-size: 1.1rem;
+  color: #444;
+  white-space: pre-wrap;
 }
 
-/* Viewer Fix: Tekst ALTIJD onder beeld */
-.fullscreen-viewer {
+/* Lightbox met Teller ONDER de foto */
+.pd-viewer {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.98);
-  z-index: 1000;
+  background: rgba(0,0,0,0.95);
+  z-index: 9999;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
 
-  &__inner {
-    flex: 1;
+  &__stage {
     display: flex;
     align-items: center;
+    width: 95%;
     justify-content: space-between;
-    padding: 0 30px;
   }
 
-  .image-wrapper {
+  &__img-container {
+    text-align: center;
     max-width: 80%;
-    max-height: 80vh;
-    img { max-width: 100%; max-height: 80vh; border-radius: 8px; }
+    
+    img {
+      max-width: 100%;
+      max-height: 80vh;
+      border-radius: 8px;
+    }
   }
 
-  &__footer {
-    height: 80px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  &__counter {
+    color: white;
+    margin-top: 20px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    background: rgba(255,255,255,0.1);
+    padding: 8px 20px;
+    border-radius: 30px;
+    display: inline-block;
   }
 
-  .photo-counter { color: white; background: rgba(255,255,255,0.1); padding: 6px 18px; border-radius: 20px; }
-  
-  .nav-arrow {
-    background: none; border: none; color: white; font-size: 3rem; cursor: pointer;
+  &__arrow {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 4rem;
+    cursor: pointer;
+    padding: 20px;
+    transition: 0.2s;
+    &:hover { color: #aaa; }
   }
 
   &__close {
-    position: absolute; top: 20px; right: 20px; background: white; border: none;
-    padding: 10px 20px; border-radius: 30px; font-weight: bold; cursor: pointer;
+    position: absolute;
+    top: 25px;
+    right: 25px;
+    background: white;
+    border: none;
+    padding: 10px 25px;
+    border-radius: 40px;
+    font-weight: bold;
+    cursor: pointer;
   }
 }
