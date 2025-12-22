@@ -27,27 +27,37 @@ const PropertyDetail: React.FC = () => {
   const gallery = Array.isArray(property.acf.property_gallery) ? property.acf.property_gallery : [];
   const allImages = featuredImage ? [featuredImage, ...gallery.filter(img => img !== featuredImage)] : gallery;
 
+  const nextPhoto = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setPhotoIndex((photoIndex! + 1) % allImages.length);
+  };
+
+  const prevPhoto = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setPhotoIndex((photoIndex! - 1 + allImages.length) % allImages.length);
+  };
+
   return (
     <div className="pd-main">
       <div className="pd-container">
-        <Link to="/" className="pd-back-link">← Terug naar aanbod</Link>
+        <Link to="/" className="pd-back">← Terug naar aanbod</Link>
         <h1 className="pd-title">{property.title.rendered}</h1>
 
-        {/* DE GRID FIX: Alles in één lijn */}
-        <div className="pd-image-grid">
-          <div className="pd-image-grid__main" onClick={() => setPhotoIndex(0)}>
-            <img src={allImages[0]} alt="Main" referrerPolicy="no-referrer" />
+        {/* AFBEELDINGEN: Strak op één lijn */}
+        <div className="pd-grid">
+          <div className="pd-grid__main" onClick={() => setPhotoIndex(0)}>
+            <img src={allImages[0]} alt="Hoofdfoto" referrerPolicy="no-referrer" />
           </div>
-          <div className="pd-image-grid__side">
+          <div className="pd-grid__side">
             {allImages.slice(1, 3).map((img, idx) => (
-              <div key={idx} className="pd-image-grid__thumb" onClick={() => setPhotoIndex(idx + 1)}>
-                <img src={img} alt="Thumb" referrerPolicy="no-referrer" />
+              <div key={idx} className="pd-grid__thumb" onClick={() => setPhotoIndex(idx + 1)}>
+                <img src={img} alt="Detail" referrerPolicy="no-referrer" />
               </div>
             ))}
           </div>
         </div>
 
-        {/* CONTENT SECTIE: Staat gegarandeerd onder de grid */}
+        {/* CONTENT: Altijd onder de foto's */}
         <div className="pd-content">
           <div className="pd-card">
             <section className="pd-section">
@@ -75,20 +85,27 @@ const PropertyDetail: React.FC = () => {
             {property.acf.description && (
               <section className="pd-section">
                 <h2 className="pd-section-title">Beschrijving</h2>
-                <p className="pd-description">{property.acf.description}</p>
+                <p className="pd-text">{property.acf.description}</p>
               </section>
             )}
           </div>
         </div>
       </div>
 
-      {/* LIGHTBOX */}
+      {/* VIEWER: Met werkende pijltjes */}
       {photoIndex !== null && (
-        <div className="pd-lightbox" onClick={() => setPhotoIndex(null)}>
-          <button className="pd-close">✕ Sluiten</button>
-          <div className="pd-lightbox-content">
-            <img src={allImages[photoIndex]} alt="Full" />
-            <div className="pd-counter">{photoIndex + 1} / {allImages.length}</div>
+        <div className="pd-viewer" onClick={() => setPhotoIndex(null)}>
+          <button className="pd-viewer__close">✕</button>
+          
+          <div className="pd-viewer__stage" onClick={(e) => e.stopPropagation()}>
+            <button className="pd-viewer__nav prev" onClick={prevPhoto}>‹</button>
+            
+            <div className="pd-viewer__img-box">
+              <img src={allImages[photoIndex]} alt="Vergroting" />
+              <div className="pd-viewer__counter">{photoIndex + 1} / {allImages.length}</div>
+            </div>
+
+            <button className="pd-viewer__nav next" onClick={nextPhoto}>›</button>
           </div>
         </div>
       )}

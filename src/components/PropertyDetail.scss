@@ -1,98 +1,116 @@
 .pd-main {
-  background: #f9f9f9;
+  background: #fcfcfc;
   min-height: 100vh;
-  padding: 40px 20px;
+  padding: 40px 15px;
 }
 
 .pd-container {
-  max-width: 1100px;
+  max-width: 1120px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 24px;
 }
 
 .pd-title {
-  font-size: 2.2rem;
+  font-size: 2.4rem;
   font-weight: 800;
-  margin: 10px 0 20px 0;
+  margin: 10px 0;
 }
 
-/* DE GRID: De side-images zijn nu exact even hoog als de main-image */
-.pd-image-grid {
+/* GRID FIX: Side images zijn nu exact 50% van de hoogte van de main */
+.pd-grid {
   display: grid;
-  grid-template-columns: 2fr 1fr; // 2 delen links, 1 deel rechts
+  grid-template-columns: 2fr 1fr;
   gap: 12px;
   width: 100%;
-  align-items: stretch; // Zorgt dat beide kolommen even hoog zijn
 
   &__main {
     cursor: pointer;
     border-radius: 12px;
     overflow: hidden;
-    aspect-ratio: 16 / 10; // De "master" verhouding
-    
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
+    aspect-ratio: 16 / 10;
+    img { width: 100%; height: 100%; object-fit: cover; display: block; }
   }
 
   &__side {
-    display: grid;
-    grid-template-rows: 1fr 1fr; // Verdeelt de rechterkant in twee exacte helften
+    display: flex;
+    flex-direction: column;
     gap: 12px;
-    height: 100%; // Neemt de volledige hoogte van de grid aan
   }
 
   &__thumb {
     cursor: pointer;
     border-radius: 12px;
     overflow: hidden;
-    position: relative;
-    
-    img {
-      position: absolute; // Laat de foto het vak volledig vullen
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
+    flex: 1; // Neemt precies de helft van de beschikbare hoogte in
+    img { width: 100%; height: 100%; object-fit: cover; display: block; }
   }
 }
 
-/* CONTENT SECTIE: Geen overlap meer */
+/* CONTENT: Nooit meer overlap */
 .pd-card {
   background: white;
   padding: 40px;
   border-radius: 16px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+  border: 1px solid #eee;
 }
 
 .pd-stats {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 20px;
-  border-top: 1px solid #eee;
-  padding-top: 20px;
+  border-top: 1px solid #f0f0f0;
+  padding-top: 25px;
 }
 
 .pd-stat {
   .pd-label { display: block; font-size: 0.7rem; color: #999; }
-  .pd-value { font-size: 1.1rem; font-weight: 700; color: #111; }
+  .pd-value { font-size: 1.2rem; font-weight: 700; color: #111; margin-top: 4px; }
 }
 
-.pd-description { line-height: 1.7; color: #444; white-space: pre-wrap; }
-
-/* LIGHTBOX */
-.pd-lightbox {
-  position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000;
+/* VIEWER STYLING: Pijltjes geforceerd in beeld */
+.pd-viewer {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 10000;
   display: flex; align-items: center; justify-content: center;
-  &-content { text-align: center; img { max-width: 90%; max-height: 80vh; border-radius: 8px; } }
-  .pd-counter { color: white; margin-top: 15px; font-weight: 600; }
-  .pd-close { position: absolute; top: 20px; right: 20px; background: white; border: none; padding: 10px 20px; border-radius: 30px; cursor: pointer; font-weight: bold; }
+
+  &__stage {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+  }
+
+  &__img-box {
+    text-align: center;
+    max-width: 80%;
+    img { max-width: 100%; max-height: 85vh; border-radius: 4px; }
+  }
+
+  &__nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255,255,255,0.1);
+    border: none;
+    color: white;
+    font-size: 4rem;
+    padding: 20px 30px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: 0.2s;
+    &:hover { background: rgba(255,255,255,0.2); }
+    &.prev { left: 40px; }
+    &.next { right: 40px; }
+  }
+
+  &__counter { color: white; margin-top: 20px; font-weight: bold; }
+
+  &__close {
+    position: absolute; top: 30px; right: 30px; background: white; border: none;
+    padding: 10px 25px; border-radius: 40px; font-weight: bold; cursor: pointer; z-index: 10001;
+  }
 }
