@@ -37,9 +37,7 @@ const PropertyDetail: React.FC = () => {
         const res = await fetch(`${API_URL}/wp-json/wp/v2/property/${id}?_embed`, { headers });
         const data = await res.json();
         setProperty(data);
-      } catch (err) {
-        console.error("Fout bij laden:", err);
-      }
+      } catch (err) { console.error("Fetch error:", err); }
     };
     fetchProperty();
   }, [id]);
@@ -70,18 +68,18 @@ const PropertyDetail: React.FC = () => {
         {/* Gecropte Grid Layout */}
         <div className="funda-grid">
           <div className="funda-grid__main" onClick={() => setPhotoIndex(0)}>
-            <img src={allImages[0]} alt="Hoofdfoto" referrerPolicy="no-referrer" />
+            <img src={allImages[0]} alt="Main" referrerPolicy="no-referrer" />
           </div>
           <div className="funda-grid__side">
             {allImages.slice(1, 4).map((img, idx) => (
               <div key={idx} className="funda-grid__item" onClick={() => setPhotoIndex(idx + 1)}>
-                <img src={img} alt={`Detail ${idx}`} referrerPolicy="no-referrer" />
+                <img src={img} alt="Side" referrerPolicy="no-referrer" />
               </div>
             ))}
           </div>
         </div>
 
-        {/* Moderne Viewer (image_4d8756.jpg stijl) */}
+        {/* Moderne Viewer met vaste container grootte */}
         {photoIndex !== null && (
           <div className="modern-viewer" onClick={() => setPhotoIndex(null)}>
             <button className="modern-viewer__close">✕ Sluiten</button>
@@ -90,8 +88,10 @@ const PropertyDetail: React.FC = () => {
               <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"><path d="M15 18l-6-6 6-6"/></svg>
             </button>
 
-            <div className="modern-viewer__img-container">
-              <img src={allImages[photoIndex]} alt="Vergroting" />
+            <div className="modern-viewer__layout">
+              <div className="modern-viewer__frame">
+                <img src={allImages[photoIndex]} alt={`Foto ${photoIndex + 1}`} />
+              </div>
               <div className="modern-viewer__counter">{photoIndex + 1} / {allImages.length}</div>
             </div>
 
@@ -101,7 +101,6 @@ const PropertyDetail: React.FC = () => {
           </div>
         )}
 
-        {/* Kenmerken Secties */}
         <div className="property-info-full">
           <section className="property-info-full__section">
             <h2>Basis Kenmerken</h2>
