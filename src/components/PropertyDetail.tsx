@@ -10,17 +10,16 @@ interface PropertyDetailData {
     bedrooms: string;
     bathrooms: string;
     square_footage: string;
-    garden: boolean; 
+    garden: boolean;
     pool: boolean;
     garage: boolean;
     driveway: boolean;
     construction_year: string;
     description?: string;
-    property_gallery: string[] | false; 
+    property_gallery: string[] | false;
   };
   _embedded?: {
     'wp:featuredmedia'?: [{ source_url: string }];
-    'wp:term'?: [{ id: number; name: string; slug: string }[]];
   };
 }
 
@@ -38,7 +37,7 @@ const PropertyDetail: React.FC = () => {
   const [property, setProperty] = useState<PropertyDetailData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [selectedImg, setSelectedImg] = useState<string | null>(null);
 
   useEffect(() => {
     if (!id) return;
@@ -68,13 +67,9 @@ const PropertyDetail: React.FC = () => {
   const { acf } = property;
   const featuredImage = property._embedded?.['wp:featuredmedia']?.[0]?.source_url;
   const galleryImages = Array.isArray(acf.property_gallery) ? acf.property_gallery : [];
-  
   const allImages = featuredImage 
     ? [featuredImage, ...galleryImages.filter(img => img !== featuredImage)]
     : galleryImages;
-
-  const nextSlide = () => setCurrentIndex((prev) => (prev === allImages.length - 1 ? 0 : prev + 1));
-  const prevSlide = () => setCurrentIndex((prev) => (prev === 0 ? allImages.length - 1 : prev - 1));
 
   return (
     <div className="property-detail">
@@ -83,36 +78,43 @@ const PropertyDetail: React.FC = () => {
       <div className="property-detail__card">
         <h1 className="property-detail__title">{property.title.rendered}</h1>
 
-        <div className="property-slider">
-          {allImages.length > 0 ? (
-            <div className="property-slider__container">
-              <img 
-                src={allImages[currentIndex]} 
-                alt={`${property.title.rendered} - foto ${currentIndex + 1}`} 
-                className="property-slider__image"
-                referrerPolicy="no-referrer"
-              />
-              {allImages.length > 1 && (
-                <>
-                  <button className="property-slider__btn prev" onClick={prevSlide}>❮</button>
-                  <button className="property-slider__btn next" onClick={nextSlide}>❯</button>
-                  <div className="property-slider__counter">{currentIndex + 1} / {allImages.length}</div>
-                </>
-              )}
+        {/* Funda-stijl Photo Grid */}
+        <div className="photo-grid">
+          {allImages.length > 0 && (
+            <div className="photo-grid__main" onClick={() => setSelectedImg(allImages[0])}>
+              <img src={allImages[0]} alt="Main" referrerPolicy="no-referrer" />
             </div>
-          ) : (
-            <div className="property-detail__no-image">Geen afbeeldingen beschikbaar</div>
           )}
+          <div className="photo-grid__side">
+            {allImages.slice(1, 5).map((img, idx) => (
+              <div key={idx} className="photo-grid__small" onClick={() => setSelectedImg(img)}>
+                <img src={img} alt={`Side ${idx}`} referrerPolicy="no-referrer" />
+                {idx === 3 && allImages.length > 5 && (
+                  <div className="photo-grid__overlay">+{allImages.length - 5}</div>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
+
+        {/* Lightbox Vergroting */}
+        {selectedImg && (
+          <div className="lightbox" onClick={() => setSelectedImg(null)}>
+            <div className="lightbox__content">
+              <img src={selectedImg} alt="Vergroting" />
+              <button className="lightbox__close">Sluiten ✕</button>
+            </div>
+          </div>
+        )}
 
         <section className="property-detail__section">
           <h2>Basis Kenmerken</h2>
           <div className="property-detail__grid">
-            <div><strong>PRIJS:</strong>{formatPrice(acf.price)}</div>
-            <div><strong>SLAAPKAMERS:</strong>{acf.bedrooms}</div>
-            <div><strong>BADKAMERS:</strong>{acf.bathrooms}</div>
-            <div><strong>OPPERVLAKTE:</strong>{acf.square_footage} m²</div>
-            <div><strong>BOUWJAAR:</strong>{acf.construction_year || '2006'}</div>
+            <div><strong>PRIJS</strong>{formatPrice(acf.price)}</div>
+            <div><strong>SLAAPKAMERS</strong>{acf.bedrooms}</div>
+            <div><strong>BADKAMERS</strong>{acf.bathrooms}</div>
+            <div><strong>OPPERVLAKTE</strong>{acf.square_footage} m²</div>
+            <div><strong>BOUWJAAR</strong>{acf.construction_year || 'Onbekend'}</div>
           </div>
         </section>
 

@@ -10,26 +10,22 @@
 }
 
 .property-detail__back {
-  width: 1200px; // Nu even breed als de nieuwe kaart
+  width: 1200px;
   margin-bottom: 20px;
   font-weight: bold;
   text-decoration: none;
   color: #4A4E69;
-  font-size: 0.9rem;
   &:hover { color: #22223B; }
 }
 
 .property-detail__card {
   background-color: #FFFFFF; 
-  // BREEDTE AANGEPAST: 1200px komt overeen met de home-containers naast elkaar
   width: 1200px; 
   padding: 60px;
   border-radius: 40px; 
   border: 1px solid #C9ADA7;
   box-shadow: 0 10px 30px rgba(34, 34, 59, 0.05);
   box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
 }
 
 .property-detail__title {
@@ -37,73 +33,104 @@
   font-size: 3.5rem; 
   font-weight: 900;
   color: #22223B;
-  text-align: center;
   text-transform: uppercase;
 }
 
-.property-slider {
-  width: 100%; 
+/* Photo Grid Layout (Funda Style) */
+.photo-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 10px;
+  height: 550px;
   margin-bottom: 50px;
+  cursor: pointer;
 
-  &__container {
-    position: relative;
-    width: 100%; 
-    height: 600px; // Iets verhoogd omdat de breedte nu ook groter is (verhouding)
-    border-radius: 30px;
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: filter 0.3s ease;
+    &:hover { filter: brightness(0.85); }
+  }
+
+  &__main {
+    border-radius: 25px 0 0 25px;
     overflow: hidden;
     border: 1px solid #C9ADA7;
-    background-color: #f9f9f9;
   }
 
-  &__image {
-    width: 100% !important; 
-    height: 100% !important;
-    object-fit: cover; 
-    display: block;
+  &__side {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 10px;
   }
 
-  &__btn {
+  &__small {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid #C9ADA7;
+    
+    // Ronde hoeken aan de rechterkant
+    &:nth-child(2) { border-radius: 0 25px 0 0; }
+    &:nth-child(4) { border-radius: 0 0 25px 0; }
+  }
+
+  &__overlay {
     position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background: rgba(255, 255, 255, 0.9);
-    color: #22223B;
-    border: none;
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 1.5rem;
-    z-index: 10;
+    inset: 0;
+    background: rgba(34, 34, 59, 0.5);
+    color: white;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    font-size: 1.8rem;
+    font-weight: bold;
+  }
+}
 
-    &.prev { left: 30px; }
-    &.next { right: 30px; }
-    &:hover { background: #fff; transform: translateY(-50%) scale(1.1); }
+/* Lightbox Styling */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(34, 34, 59, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 40px;
+
+  &__content {
+    position: relative;
+    max-width: 90%;
+    max-height: 90vh;
+    img { 
+      width: 100%; 
+      height: auto; 
+      max-height: 85vh; 
+      border-radius: 15px; 
+      object-fit: contain;
+    }
   }
 
-  &__counter {
+  &__close {
     position: absolute;
-    bottom: 25px;
-    right: 30px;
-    background: rgba(34, 34, 59, 0.7);
+    top: -50px;
+    right: 0;
+    background: none;
+    border: 2px solid white;
     color: white;
-    padding: 5px 15px;
-    border-radius: 20px;
-    font-size: 0.9rem;
+    padding: 8px 20px;
+    border-radius: 30px;
+    cursor: pointer;
+    font-weight: bold;
+    &:hover { background: white; color: #22223B; }
   }
 }
 
 .property-detail__section {
   margin-bottom: 50px;
-  width: 100%;
-  max-width: 1000px; // Tekst iets smaller houden voor leesbaarheid
-  margin-left: auto;
-  margin-right: auto;
-
   h2 {
     font-size: 2rem;
     font-weight: 800;
@@ -116,14 +143,11 @@
 
 .property-detail__grid {
   display: grid;
-  // Nu we breder zijn, kunnen we de kenmerken weer in 2 kolommen zetten als je wilt
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 40px;
-
   div {
     font-size: 1.4rem;
     color: #4A4E69;
-    
     strong {
       display: block;
       font-size: 0.8rem;
@@ -135,18 +159,21 @@
   }
 }
 
+.property-detail__description {
+  white-space: pre-line;
+  line-height: 1.8;
+  font-size: 1.1rem;
+}
+
 @media (max-width: 1250px) {
-  .property-detail__card,
-  .property-detail__back {
-    width: 90%; // Schaalt mee op kleinere schermen
-  }
+  .property-detail__card, .property-detail__back { width: 95%; }
 }
 
 @media (max-width: 768px) {
-  .property-slider__container {
-    height: 400px;
-  }
-  .property-detail__title {
-    font-size: 2.5rem;
+  .photo-grid {
+    grid-template-columns: 1fr;
+    height: auto;
+    &__side { display: none; } // Verberg kleine fotos op mobiel voor grid
+    &__main { border-radius: 20px; height: 300px; }
   }
 }
