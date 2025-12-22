@@ -41,8 +41,10 @@ const PropertyDetail: React.FC = () => {
   useEffect(() => {
     if (!id) return;
 
+    // Haalt de URL op die je in Render Settings hebt gezet
     const API_URL = import.meta.env.VITE_API_URL || 'http://headless-property-wp.local';
 
+    // Gebruikt de volledige API route met de variabele
     fetch(`${API_URL}/wp-json/wp/v2/properties/${id}?_embed`)
       .then(res => {
         if (!res.ok) throw new Error('Woning niet gevonden');
