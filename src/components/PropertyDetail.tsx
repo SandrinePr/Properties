@@ -21,7 +21,7 @@ const PropertyDetail: React.FC = () => {
     fetchProperty();
   }, [id]);
 
-  if (!property) return <div className="loading">Laden...</div>;
+  if (!property) return <div className="pd-loading">Laden...</div>;
 
   const featuredImage = property._embedded?.['wp:featuredmedia']?.[0]?.source_url;
   const gallery = Array.isArray(property.acf.property_gallery) ? property.acf.property_gallery : [];
@@ -33,39 +33,73 @@ const PropertyDetail: React.FC = () => {
         <Link to="/" className="pd-back">← Terug</Link>
         <h1 className="pd-title">{property.title.rendered}</h1>
 
-        {/* DE GRID SECTIE */}
+        {/* GRID MET MIN-HEIGHT VOOR STABILITEIT */}
         <div className="pd-grid-wrapper">
           <div className="pd-grid-main" onClick={() => setPhotoIndex(0)}>
             <img src={allImages[0]} alt="Hero" referrerPolicy="no-referrer" />
           </div>
+          
           <div className="pd-grid-side">
-            {allImages.slice(1, 3).map((img, idx) => (
-              <div key={idx} className="pd-side-item" onClick={() => setPhotoIndex(idx + 1)}>
-                <img src={img} alt="Thumb" referrerPolicy="no-referrer" />
-              </div>
-            ))}
+            {/* Eerste kleine foto */}
+            <div className="pd-side-item" onClick={() => setPhotoIndex(1)}>
+              <img src={allImages[1]} alt="Detail 1" referrerPolicy="no-referrer" />
+            </div>
+            
+            {/* Tweede kleine foto met de Aantal-badge */}
+            <div className="pd-side-item" onClick={() => setPhotoIndex(2)}>
+              <img src={allImages[2]} alt="Detail 2" referrerPolicy="no-referrer" />
+              {allImages.length > 3 && (
+                <div className="pd-image-badge">
+                  <span>+{allImages.length - 2} foto's</span>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* DETAILS KAART */}
+        {/* INFO KAART */}
         <div className="pd-info-card">
-          <h2>Basis Kenmerken</h2>
+          <h2 className="pd-section-title">Basis Kenmerken</h2>
           <div className="pd-stats">
-            <div className="pd-stat"><span>PRIJS</span><strong>€ {Number(property.acf.price).toLocaleString('nl-NL')}</strong></div>
-            <div className="pd-stat"><span>M²</span><strong>{property.acf.square_footage}</strong></div>
+            <div className="pd-stat">
+              <span className="label">PRIJS</span>
+              <span className="value">€ {Number(property.acf.price).toLocaleString('nl-NL')}</span>
+            </div>
+            <div className="pd-stat">
+              <span className="label">OPPERVLAKTE</span>
+              <span className="value">{property.acf.square_footage} m²</span>
+            </div>
+            <div className="pd-stat">
+              <span className="label">SLAAPKAMERS</span>
+              <span className="value">{property.acf.bedrooms}</span>
+            </div>
+            <div className="pd-stat">
+              <span className="label">BOUWJAAR</span>
+              <span className="value">{property.acf.construction_year}</span>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* VIEWER OVERLAY MET PIJLTJES */}
+      {/* OVERLAY MET PIJLTJES (FIXED) */}
       {photoIndex !== null && (
         <div className="pd-overlay" onClick={() => setPhotoIndex(null)}>
-          <button className="pd-arrow prev" onClick={(e) => { e.stopPropagation(); setPhotoIndex((photoIndex - 1 + allImages.length) % allImages.length); }}>‹</button>
-          <div className="pd-view-content" onClick={(e) => e.stopPropagation()}>
-            <img src={allImages[photoIndex]} alt="Large view" />
+          <button className="pd-close">✕ Sluiten</button>
+          
+          <button className="pd-arrow prev" onClick={(e) => { 
+            e.stopPropagation(); 
+            setPhotoIndex((photoIndex - 1 + allImages.length) % allImages.length); 
+          }}>‹</button>
+          
+          <div className="pd-view-box" onClick={(e) => e.stopPropagation()}>
+            <img src={allImages[photoIndex]} alt="Vergroting" />
+            <div className="pd-counter">{photoIndex + 1} / {allImages.length}</div>
           </div>
-          <button className="pd-arrow next" onClick={(e) => { e.stopPropagation(); setPhotoIndex((photoIndex + 1) % allImages.length); }}>›</button>
-          <button className="pd-close">✕</button>
+
+          <button className="pd-arrow next" onClick={(e) => { 
+            e.stopPropagation(); 
+            setPhotoIndex((photoIndex + 1) % allImages.length); 
+          }}>›</button>
         </div>
       )}
     </div>
