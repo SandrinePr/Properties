@@ -6,123 +6,128 @@
   padding: 40px 20px;
   background-color: #F2E9E4; 
   min-height: 100vh;
+  box-sizing: border-box;
 }
 
 .property-detail__back {
-  align-self: flex-start;
-  max-width: 1000px;
-  margin: 0 auto 20px auto;
+  width: 600px; // Zelfde breedte als de card voor een strakke lijn
+  margin-bottom: 20px;
   font-weight: bold;
   text-decoration: none;
   color: #4A4E69;
-  display: block;
-  width: 100%;
-  &:hover { color: #22223B; }
+  font-size: 0.9rem;
+
+  &:hover {
+    color: #22223B;
+  }
 }
 
 .property-detail__card {
   background-color: #FFFFFF; 
-  width: 100%;
-  max-width: 1000px;
-  padding: 50px;
-  border-radius: 40px; // Extra ronde hoeken zoals in img
+  width: 600px; // VASTE BREEDTE: De kaart verspringt nu nooit meer
+  padding: 60px 40px;
+  border-radius: 40px; // Mooie ronde hoeken zoals in screenshot
   border: 1px solid #C9ADA7;
   box-shadow: 0 10px 30px rgba(34, 34, 59, 0.05);
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
 }
 
 .property-detail__title {
   margin-bottom: 40px;
-  font-size: 3.5rem; // Groot zoals in screenshot
+  font-size: 3.5rem; // Groot en dikgedrukt zoals in img_4c3869
   font-weight: 900;
   color: #22223B;
   text-align: center;
   text-transform: uppercase;
+  width: 100%;
 }
 
-/* De Slider Lay-out gebaseerd op je afbeelding */
+/* De Slider met Vaste Afmetingen */
 .property-slider {
+  width: 100%; 
   margin-bottom: 50px;
-  width: 100%;
 
   &__container {
     position: relative;
-    width: 100%;
-    max-width: 800px; // Gecentreerd
-    margin: 0 auto;
-    height: 500px;
-    border-radius: 20px;
+    width: 100%; // Vult de 600px van de card minus padding
+    height: 450px; // VASTE HOOGTE
+    border-radius: 25px;
     overflow: hidden;
     border: 1px solid #C9ADA7;
+    background-color: #f9f9f9;
   }
 
   &__image {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: cover; // Zorgt dat de foto de 600x450 ruimte altijd vult zonder vervorming
+    display: block;
   }
 
   &__btn {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    background: rgba(255, 255, 255, 0.8);
+    background: rgba(255, 255, 255, 0.9);
     color: #22223B;
     border: none;
-    width: 45px;
-    height: 45px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     cursor: pointer;
-    font-size: 1.2rem;
+    font-size: 1rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     transition: all 0.2s;
+    z-index: 10;
 
     &:hover { background: #fff; transform: translateY(-50%) scale(1.1); }
-    &.prev { left: 20px; }
-    &.next { right: 20px; }
+    &.prev { left: 15px; }
+    &.next { right: 15px; }
   }
 
   &__counter {
     position: absolute;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
+    bottom: 15px;
+    right: 20px;
     background: rgba(34, 34, 59, 0.6);
     color: white;
-    padding: 4px 12px;
-    border-radius: 15px;
-    font-size: 0.8rem;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 0.75rem;
   }
 }
 
 .property-detail__section {
   margin-bottom: 40px;
-  max-width: 800px;
-  margin-left: auto;
-  margin-right: auto;
+  width: 100%;
 
   h2 {
     font-size: 1.8rem;
     font-weight: 800;
-    margin-bottom: 25px;
+    margin-bottom: 30px;
     color: #22223B;
+    border-bottom: 1px solid #eee; // Subtiele scheidingslijn
+    padding-bottom: 10px;
   }
 }
 
 .property-detail__grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 30px;
+  display: flex;
+  flex-direction: column; // Alles onder elkaar zoals in screenshot
+  gap: 35px;
 
   div {
-    font-size: 1.3rem;
+    font-size: 1.4rem;
     color: #4A4E69;
+    
     strong {
       display: block;
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       text-transform: uppercase;
       color: #9A8C98;
       margin-bottom: 8px;
@@ -135,10 +140,19 @@
   white-space: pre-line;
   line-height: 1.8;
   font-size: 1.1rem;
+  color: #4A4E69;
 }
 
-@media (max-width: 768px) {
-  .property-slider__container { height: 350px; }
-  .property-detail__title { font-size: 2.2rem; }
-  .property-detail__card { padding: 30px 20px; }
+/* Responsiviteit voor mobiel: Schakel hier pas over naar een kleinere breedte */
+@media (max-width: 650px) {
+  .property-detail__card,
+  .property-detail__back {
+    width: 100%;
+  }
+  .property-slider__container {
+    height: 300px;
+  }
+  .property-detail__title {
+    font-size: 2.2rem;
+  }
 }
