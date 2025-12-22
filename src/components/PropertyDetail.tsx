@@ -16,8 +16,7 @@ interface PropertyDetailData {
     has_driveway: boolean;
     construction_year: string;
     description?: string;
-    // Hier vangen we de galerij op (Return Format: Image URL in ACF)
-    property_photo: string[]; 
+    property_photo: string[] | false; // ACF Gallery kan false teruggeven als hij leeg is
   };
   _embedded?: {
     'wp:featuredmedia'?: [{ source_url: string }];
@@ -45,6 +44,7 @@ const PropertyDetail: React.FC = () => {
 
     const API_URL = import.meta.env.VITE_API_URL || 'http://headless-property-wp.local';
     const headers = new Headers();
+    // Verplichte tunnel autorisatie
     headers.set('Authorization', 'Basic ' + btoa('staple:temporary'));
 
     fetch(`${API_URL}/wp-json/wp/v2/property/${id}?_embed`, { headers })
@@ -66,29 +66,40 @@ const PropertyDetail: React.FC = () => {
   if (error) return <div className="property-detail__state error">{error}</div>;
   if (!property) return null;
 
-  const propertyTypes = property._embedded?.['wp:term']?.[0] || [];
   const { acf } = property;
+  const propertyTypes = property._embedded?.['wp:term']?.[0] || [];
+
+  // LOGICA: Voeg featured image en galerij samen
+  const featuredImage = property._embedded?.['wp:featuredmedia']?.[0]?.source_url;
+  const galleryImages = Array.isArray(acf.property_photo) ? acf.property_photo : [];
+  
+  // Maak één lijst: featured image eerst, daarna de rest (zonder dubbelen)
+  const allImages = featuredImage 
+    ? [featuredImage, ...galleryImages.filter(img => img !== featuredImage)]
+    : galleryImages;
 
   return (
     <div className="property-detail">
-      <Link to="/" className="property-detail__back">
-        ← Terug naar Overzicht
-      </Link>
+      <Link to="/" className="property-detail__back">← Terug naar Overzicht</Link>
 
       <div className="property-detail__card">
-        <h1 className="property-detail__title">
-          {property.title.rendered}
-        </h1>
+        <h1 className="property-detail__title">{property.title.rendered}</h1>
 
-        {/* DE LOOP VOOR DE GALERIJ */}
-        {acf.property_photo && acf.property_photo.length > 0 && (
+        {/* De Gecombineerde Galerij Loop */}
+        {allImages.length > 0 ? (
           <div className="property-detail__gallery">
-            {acf.property_photo.map((url, index) => (
+            {allImages.map((url, index) => (
               <div key={index} className="property-detail__gallery-item">
-                <img src={url} alt={`${property.title.rendered} - foto ${index + 1}`} />
+                <img 
+                  src={url} 
+                  alt={`${property.title.rendered} - foto ${index + 1}`} 
+                  onError={(e) => (e.currentTarget.style.display = 'none')}
+                />
               </div>
             ))}
           </div>
+        ) : (
+          <div className="property-detail__no-image">Geen afbeeldingen beschikbaar</div>
         )}
 
         <section className="property-detail__section">
@@ -102,33 +113,10 @@ const PropertyDetail: React.FC = () => {
           </div>
         </section>
 
-        <section className="property-detail__section">
-          <h2>Extra Voorzieningen</h2>
-          <div className="property-detail__grid">
-            <div>{acf.has_garden ? '✅' : '❌'} Tuin</div>
-            <div>{acf.has_pool ? '✅' : '❌'} Zwembad</div>
-            <div>{acf.has_garage ? '✅' : '❌'} Garage</div>
-            <div>{acf.has_driveway ? '✅' : '❌'} Oprit</div>
-          </div>
-        </section>
-
-        {propertyTypes.length > 0 && (
-          <section className="property-detail__section">
-            <h2>Type(s)</h2>
-            <div className="property-detail__tags">
-              {propertyTypes.map(term => (
-                <span key={term.id}>{term.name}</span>
-              ))}
-            </div>
-          </section>
-        )}
-
         {acf.description && (
           <section className="property-detail__section">
             <h2>Beschrijving</h2>
-            <p className="property-detail__description">
-              {acf.description}
-            </p>
+            <p className="property-detail__description">{acf.description}</p>
           </section>
         )}
       </div>
