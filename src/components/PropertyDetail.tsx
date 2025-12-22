@@ -16,6 +16,8 @@ interface PropertyDetailData {
     has_driveway: boolean;
     construction_year: string;
     description?: string;
+    // Hier vangen we de galerij op (Return Format: Image URL in ACF)
+    property_photo: string[]; 
   };
   _embedded?: {
     'wp:featuredmedia'?: [{ source_url: string }];
@@ -41,14 +43,10 @@ const PropertyDetail: React.FC = () => {
   useEffect(() => {
     if (!id) return;
 
-    // Haalt de URL op die je in Render Settings hebt gezet
     const API_URL = import.meta.env.VITE_API_URL || 'http://headless-property-wp.local';
-
-    // Maak de headers aan voor de LocalWP tunnel (staple:temporary)
     const headers = new Headers();
     headers.set('Authorization', 'Basic ' + btoa('staple:temporary'));
 
-    // Gebruikt 'property' (enkelvoud) en stuurt de headers mee
     fetch(`${API_URL}/wp-json/wp/v2/property/${id}?_embed`, { headers })
       .then(res => {
         if (!res.ok) throw new Error('Woning niet gevonden of geen toegang');
@@ -68,7 +66,6 @@ const PropertyDetail: React.FC = () => {
   if (error) return <div className="property-detail__state error">{error}</div>;
   if (!property) return null;
 
-  const featuredImage = property._embedded?.['wp:featuredmedia']?.[0]?.source_url;
   const propertyTypes = property._embedded?.['wp:term']?.[0] || [];
   const { acf } = property;
 
@@ -83,9 +80,14 @@ const PropertyDetail: React.FC = () => {
           {property.title.rendered}
         </h1>
 
-        {featuredImage && (
-          <div className="property-detail__image">
-            <img src={featuredImage} alt={property.title.rendered} />
+        {/* DE LOOP VOOR DE GALERIJ */}
+        {acf.property_photo && acf.property_photo.length > 0 && (
+          <div className="property-detail__gallery">
+            {acf.property_photo.map((url, index) => (
+              <div key={index} className="property-detail__gallery-item">
+                <img src={url} alt={`${property.title.rendered} - foto ${index + 1}`} />
+              </div>
+            ))}
           </div>
         )}
 
