@@ -10,14 +10,12 @@ interface PropertyDetailData {
     bedrooms: string;
     bathrooms: string;
     square_footage: string;
-    // Namen aangepast naar jouw API data:
     garden: boolean; 
     pool: boolean;
     garage: boolean;
     driveway: boolean;
     construction_year: string;
     description?: string;
-    // Naam aangepast naar property_gallery:
     property_gallery: string[] | false; 
   };
   _embedded?: {
@@ -43,6 +41,7 @@ const PropertyDetail: React.FC = () => {
 
   useEffect(() => {
     if (!id) return;
+
     const API_URL = import.meta.env.VITE_API_URL || 'http://headless-property-wp.local';
     const headers = new Headers();
     headers.set('Authorization', 'Basic ' + btoa('staple:temporary'));
@@ -69,11 +68,11 @@ const PropertyDetail: React.FC = () => {
   const { acf } = property;
   const propertyTypes = property._embedded?.['wp:term']?.[0] || [];
 
-  // LOGICA VOOR DE FOTO'S
+  // FOTO LOGICA
   const featuredImage = property._embedded?.['wp:featuredmedia']?.[0]?.source_url;
   const galleryImages = Array.isArray(acf.property_gallery) ? acf.property_gallery : [];
   
-  // Combineer featured image met de rest
+  // Voeg featured image toe aan het begin
   const allImages = featuredImage 
     ? [featuredImage, ...galleryImages.filter(img => img !== featuredImage)]
     : galleryImages;
@@ -89,15 +88,16 @@ const PropertyDetail: React.FC = () => {
           {property.title.rendered}
         </h1>
 
-        {/* De Galerij Grid */}
+        {/* DE GALERIJ LOOP */}
         {allImages.length > 0 ? (
           <div className="property-detail__gallery">
             {allImages.map((url, index) => (
-              <div key={index} className="property-detail__gallery-item">
+              <div key={`${url}-${index}`} className="property-detail__gallery-item">
                 <img 
                   src={url} 
                   alt={`${property.title.rendered} - foto ${index + 1}`} 
-                  crossOrigin="anonymous" 
+                  // Forceert de browser om de tunnel-auth te gebruiken voor afbeeldingen
+                  loading="lazy"
                 />
               </div>
             ))}
@@ -120,7 +120,6 @@ const PropertyDetail: React.FC = () => {
         <section className="property-detail__section">
           <h2>Extra Voorzieningen</h2>
           <div className="property-detail__grid">
-            {/* Namen hier ook aangepast naar de API: garden, pool, etc. */}
             <div>{acf.garden ? '✅' : '❌'} Tuin</div>
             <div>{acf.pool ? '✅' : '❌'} Zwembad</div>
             <div>{acf.garage ? '✅' : '❌'} Garage</div>
