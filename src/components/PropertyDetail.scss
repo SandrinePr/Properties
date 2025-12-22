@@ -1,125 +1,133 @@
-.property-page {
-  background: #fcfcfc;
-  padding: 40px 15px;
+.property-detail-page {
+  background: #fdfdfd;
+  padding: 40px 20px;
   min-height: 100vh;
 }
 
-.property-container {
-  max-width: 1100px;
+.content-container {
+  max-width: 1140px;
   margin: 0 auto;
-  background: #fff;
-  padding: 40px;
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.03);
 }
 
-.main-title {
+.property-main-title {
   font-size: 2.8rem;
+  font-weight: 800;
   margin-bottom: 30px;
-  color: #1a1a1a;
+  color: #212121;
 }
 
-/* De Grid: Geen fixed height meer. Gebruikt aspect-ratio om zoom te stoppen */
-.media-grid {
+/* De Grid Fix: Gebruikt aspect-ratio op de container */
+.funda-style-grid {
   display: grid;
-  grid-template-columns: 1.8fr 1fr;
-  gap: 12px;
-  margin-bottom: 50px; // Dwingt ruimte voor tekst af
+  grid-template-columns: 2fr 1fr;
+  gap: 10px;
+  width: 100%;
+  margin-bottom: 60px; // Voorkomt overlap met tekst
 
-  &__primary {
+  &__hero {
     cursor: pointer;
+    border-radius: 12px 0 0 12px;
+    overflow: hidden;
+    aspect-ratio: 16 / 10; // Dwingt een verhouding af zonder zoom
+    
     img {
       width: 100%;
-      height: auto;
-      aspect-ratio: 4 / 3; // Houdt de verhouding vast
-      object-fit: cover;
-      border-radius: 8px;
+      height: 100%;
+      object-fit: cover; 
     }
   }
 
-  &__secondary {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+  &__gallery {
+    display: grid;
+    grid-template-rows: 1fr 1fr;
+    gap: 10px;
   }
 
   &__thumb {
     cursor: pointer;
-    height: 100%;
+    overflow: hidden;
+    border-radius: 0 12px 12px 0;
+    &:first-child { border-radius: 0 12px 0 0; }
+    &:last-child { border-radius: 0 0 12px 0; }
+
     img {
       width: 100%;
       height: 100%;
-      aspect-ratio: 4 / 3;
       object-fit: cover;
-      border-radius: 8px;
     }
   }
 }
 
-/* Info Sectie: Nooit meer overlap */
-.info-wrap {
-  display: block;
-  clear: both;
+/* Tekst Styling */
+.property-info-sheet {
+  background: white;
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 2px 15px rgba(0,0,0,0.04);
+}
+
+.info-block {
+  margin-bottom: 50px;
+  &__title { font-size: 1.6rem; margin-bottom: 30px; color: #333; }
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 30px;
+  border-top: 1px solid #eee;
   padding-top: 30px;
 }
 
-.info-section {
-  margin-bottom: 50px;
-  &__heading { font-size: 1.4rem; margin-bottom: 25px; color: #333; }
+.feature-item {
+  &__label { display: block; font-size: 0.75rem; color: #999; letter-spacing: 0.5px; margin-bottom: 5px; }
+  &__value { font-size: 1.3rem; font-weight: 700; color: #111; }
 }
 
-.stats-row {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
-  border-top: 1px solid #eee;
-  padding-top: 25px;
+.property-text-content {
+  line-height: 1.8;
+  color: #555;
+  font-size: 1.1rem;
 }
 
-.stat-item {
-  .label { display: block; font-size: 0.7rem; color: #888; letter-spacing: 1px; }
-  .value { font-size: 1.2rem; font-weight: 700; color: #1a1a1a; margin-top: 5px; display: block; }
-}
-
-/* Viewer: Tekst gegarandeerd onder beeld */
-.overlay-viewer {
+/* Viewer Fix: Tekst ALTIJD onder beeld */
+.fullscreen-viewer {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.97);
-  z-index: 10000;
+  background: rgba(0,0,0,0.98);
+  z-index: 1000;
   display: flex;
   flex-direction: column;
 
-  &__stage {
+  &__inner {
     flex: 1;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 20px;
+    padding: 0 30px;
   }
 
-  .image-holder {
-    max-width: 85%;
+  .image-wrapper {
+    max-width: 80%;
     max-height: 80vh;
-    img { max-width: 100%; max-height: 80vh; border-radius: 4px; }
+    img { max-width: 100%; max-height: 80vh; border-radius: 8px; }
   }
 
   &__footer {
-    height: 100px; // Vaste balk onderaan voor de teller
+    height: 80px;
     display: flex;
     align-items: center;
     justify-content: center;
   }
 
-  .counter-pill { color: #fff; background: rgba(255,255,255,0.1); padding: 8px 20px; border-radius: 20px; }
-
-  .nav-btn {
-    background: none; border: none; color: white; font-size: 4rem; cursor: pointer;
-    &:hover { color: #ccc; }
+  .photo-counter { color: white; background: rgba(255,255,255,0.1); padding: 6px 18px; border-radius: 20px; }
+  
+  .nav-arrow {
+    background: none; border: none; color: white; font-size: 3rem; cursor: pointer;
   }
 
   &__close {
-    position: absolute; top: 30px; right: 30px; background: #fff; border: none;
-    width: 45px; height: 45px; border-radius: 50%; cursor: pointer; font-weight: bold;
+    position: absolute; top: 20px; right: 20px; background: white; border: none;
+    padding: 10px 20px; border-radius: 30px; font-weight: bold; cursor: pointer;
   }
 }

@@ -37,7 +37,7 @@ const PropertyDetail: React.FC = () => {
         const res = await fetch(`${API_URL}/wp-json/wp/v2/property/${id}?_embed`, { headers });
         const data = await res.json();
         setProperty(data);
-      } catch (err) { console.error("Fetch error:", err); }
+      } catch (err) { console.error(err); }
     };
     fetchProperty();
   }, [id]);
@@ -59,73 +59,73 @@ const PropertyDetail: React.FC = () => {
   };
 
   return (
-    <div className="property-page">
-      <div className="property-container">
-        <Link to="/" className="back-link">← Terug naar aanbod</Link>
-        <h1 className="main-title">{property.title.rendered}</h1>
+    <div className="property-detail-page">
+      <div className="content-container">
+        <Link to="/" className="back-navigation">← Terug naar overzicht</Link>
+        <h1 className="property-main-title">{property.title.rendered}</h1>
 
-        {/* Nieuwe Grid-structuur: Geen vaste hoogte om zoom te voorkomen */}
-        <div className="media-grid">
-          <div className="media-grid__primary" onClick={() => setPhotoIndex(0)}>
+        {/* Verbeterde Grid: Gebruikt CSS Aspect Ratio voor perfecte uitlijning */}
+        <div className="funda-style-grid">
+          <div className="funda-style-grid__hero" onClick={() => setPhotoIndex(0)}>
             <img src={allImages[0]} alt="Hero" referrerPolicy="no-referrer" />
           </div>
-          <div className="media-grid__secondary">
+          <div className="funda-style-grid__gallery">
             {allImages.slice(1, 3).map((img, idx) => (
-              <div key={idx} className="media-grid__thumb" onClick={() => setPhotoIndex(idx + 1)}>
-                <img src={img} alt="Detail" referrerPolicy="no-referrer" />
+              <div key={idx} className="funda-style-grid__thumb" onClick={() => setPhotoIndex(idx + 1)}>
+                <img src={img} alt="Gallery thumb" referrerPolicy="no-referrer" />
               </div>
             ))}
           </div>
         </div>
 
-        {/* Info-sectie: Expliciet gescheiden om overlap te voorkomen */}
-        <div className="info-wrap">
-          <section className="info-section">
-            <h2 className="info-section__heading">Basis Kenmerken</h2>
-            <div className="stats-row">
-              <div className="stat-item">
-                <span className="label">PRIJS</span>
-                <span className="value">€ {Number(property.acf.price).toLocaleString('nl-NL')}</span>
+        {/* Info sectie: Nu gegarandeerd op de juiste plek */}
+        <div className="property-info-sheet">
+          <section className="info-block">
+            <h2 className="info-block__title">Basis Kenmerken</h2>
+            <div className="features-grid">
+              <div className="feature-item">
+                <span className="feature-item__label">PRIJS</span>
+                <span className="feature-item__value">€ {Number(property.acf.price).toLocaleString('nl-NL')}</span>
               </div>
-              <div className="stat-item">
-                <span className="label">SLAAPKAMERS</span>
-                <span className="value">{property.acf.bedrooms}</span>
+              <div className="feature-item">
+                <span className="feature-item__label">SLAAPKAMERS</span>
+                <span className="feature-item__value">{property.acf.bedrooms}</span>
               </div>
-              <div className="stat-item">
-                <span className="label">OPPERVLAKTE</span>
-                <span className="value">{property.acf.square_footage} m²</span>
+              <div className="feature-item">
+                <span className="feature-item__label">OPPERVLAKTE</span>
+                <span className="feature-item__value">{property.acf.square_footage} m²</span>
               </div>
-              <div className="stat-item">
-                <span className="label">BOUWJAAR</span>
-                <span className="value">{property.acf.construction_year}</span>
+              <div className="feature-item">
+                <span className="feature-item__label">BOUWJAAR</span>
+                <span className="feature-item__value">{property.acf.construction_year}</span>
               </div>
             </div>
           </section>
 
           {property.acf.description && (
-            <section className="info-section">
-              <h2 className="info-section__heading">Beschrijving</h2>
-              <p className="description-body">{property.acf.description}</p>
+            <section className="info-block">
+              <h2 className="info-block__title">Beschrijving</h2>
+              <p className="property-text-content">{property.acf.description}</p>
             </section>
           )}
         </div>
       </div>
 
-      {/* Lightbox: De tekst staat nu in een aparte footer-balk onder het beeld */}
+      {/* Lightbox Viewer */}
       {photoIndex !== null && (
-        <div className="overlay-viewer" onClick={() => setPhotoIndex(null)}>
-          <button className="overlay-viewer__close">✕</button>
+        <div className="fullscreen-viewer" onClick={() => setPhotoIndex(null)}>
+          <button className="fullscreen-viewer__close">✕ Sluiten</button>
           
-          <div className="overlay-viewer__stage">
-            <button className="nav-btn prev" onClick={prevPhoto}>‹</button>
-            <div className="image-holder">
-              <img src={allImages[photoIndex]} alt="Zoom" onClick={(e) => e.stopPropagation()} />
+          <div className="fullscreen-viewer__inner">
+            <button className="nav-arrow prev" onClick={prevPhoto}>‹</button>
+            <div className="image-wrapper">
+              <img src={allImages[photoIndex]} alt="Large" onClick={(e) => e.stopPropagation()} />
             </div>
-            <button className="nav-btn next" onClick={nextPhoto}>›</button>
+            <button className="nav-arrow next" onClick={nextPhoto}>›</button>
           </div>
 
-          <div className="overlay-viewer__footer">
-            <div className="counter-pill">{photoIndex + 1} / {allImages.length}</div>
+          <div className="fullscreen-viewer__footer">
+            <span className="photo-counter">{photoIndex + 1} / {allImages.length}</span>
           </div>
         </div>
       )}
