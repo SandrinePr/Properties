@@ -27,65 +27,45 @@ const PropertyDetail: React.FC = () => {
   const gallery = Array.isArray(property.acf.property_gallery) ? property.acf.property_gallery : [];
   const allImages = featuredImage ? [featuredImage, ...gallery.filter(img => img !== featuredImage)] : gallery;
 
-  // Navigatie logica
-  const nextPhoto = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setPhotoIndex((prev) => (prev! + 1) % allImages.length);
-  };
-
-  const prevPhoto = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setPhotoIndex((prev) => (prev! - 1 + allImages.length) % allImages.length);
-  };
-
   return (
     <div className="pd-root">
-      <div className="pd-inner">
+      <div className="pd-container">
         <Link to="/" className="pd-back">← Terug</Link>
         <h1 className="pd-title">{property.title.rendered}</h1>
 
-        {/* DE GRID: Alleen foto's, geen knoppen. Dit houdt de uitlijning strak */}
-        <div className="pd-photo-grid">
-          <div className="pd-grid-left" onClick={() => setPhotoIndex(0)}>
-            <img src={allImages[0]} alt="Hoofdfoto" referrerPolicy="no-referrer" />
+        {/* DE GRID SECTIE */}
+        <div className="pd-grid-wrapper">
+          <div className="pd-grid-main" onClick={() => setPhotoIndex(0)}>
+            <img src={allImages[0]} alt="Hero" referrerPolicy="no-referrer" />
           </div>
-          <div className="pd-grid-right">
+          <div className="pd-grid-side">
             {allImages.slice(1, 3).map((img, idx) => (
-              <div key={idx} className="pd-grid-thumb" onClick={() => setPhotoIndex(idx + 1)}>
-                <img src={img} alt={`Detail ${idx + 1}`} referrerPolicy="no-referrer" />
+              <div key={idx} className="pd-side-item" onClick={() => setPhotoIndex(idx + 1)}>
+                <img src={img} alt="Thumb" referrerPolicy="no-referrer" />
               </div>
             ))}
           </div>
         </div>
 
-        <div className="pd-content-card">
+        {/* DETAILS KAART */}
+        <div className="pd-info-card">
           <h2>Basis Kenmerken</h2>
           <div className="pd-stats">
-            <div className="pd-stat">
-              <span className="label">PRIJS</span>
-              <span className="value">€ {Number(property.acf.price).toLocaleString('nl-NL')}</span>
-            </div>
-            <div className="pd-stat">
-              <span className="label">SLAAPKAMERS</span>
-              <span className="value">{property.acf.bedrooms}</span>
-            </div>
+            <div className="pd-stat"><span>PRIJS</span><strong>€ {Number(property.acf.price).toLocaleString('nl-NL')}</strong></div>
+            <div className="pd-stat"><span>M²</span><strong>{property.acf.square_footage}</strong></div>
           </div>
         </div>
       </div>
 
-      {/* VIEWER OVERLAY: Losgekoppeld van de grid */}
+      {/* VIEWER OVERLAY MET PIJLTJES */}
       {photoIndex !== null && (
-        <div className="pd-viewer" onClick={() => setPhotoIndex(null)}>
-          <button className="pd-close">✕ Sluiten</button>
-          
-          <button className="pd-nav-arrow prev" onClick={prevPhoto}>‹</button>
-          
-          <div className="pd-viewer-box" onClick={(e) => e.stopPropagation()}>
-            <img src={allImages[photoIndex]} alt="Groot" />
-            <div className="pd-counter">{photoIndex + 1} / {allImages.length}</div>
+        <div className="pd-overlay" onClick={() => setPhotoIndex(null)}>
+          <button className="pd-arrow prev" onClick={(e) => { e.stopPropagation(); setPhotoIndex((photoIndex - 1 + allImages.length) % allImages.length); }}>‹</button>
+          <div className="pd-view-content" onClick={(e) => e.stopPropagation()}>
+            <img src={allImages[photoIndex]} alt="Large view" />
           </div>
-
-          <button className="pd-nav-arrow next" onClick={nextPhoto}>›</button>
+          <button className="pd-arrow next" onClick={(e) => { e.stopPropagation(); setPhotoIndex((photoIndex + 1) % allImages.length); }}>›</button>
+          <button className="pd-close">✕</button>
         </div>
       )}
     </div>
