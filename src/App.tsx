@@ -1,11 +1,10 @@
 // src/App.tsx
-///haalt data op
 import { useState, useEffect } from 'react';
 import PropertyCard from './components/PropertyCard';
 import FilterForm, { type Filters } from './components/FilterForm'; 
 import './App.scss';
 
-//interface
+// interface
 interface Property {
   id: number;
   title: { rendered: string };
@@ -33,7 +32,7 @@ interface TaxonomyTerm {
   slug: string;
 }
 
-//homepage
+// homepage
 function App() {
   const [properties, setProperties] = useState<Property[]>([]);
   const [propertyTypes, setPropertyTypes] = useState<TaxonomyTerm[]>([]); 
@@ -45,13 +44,18 @@ function App() {
   });
 
   useEffect(() => {
-    // Definieer de basis URL vanuit Render environment of lokale fallback
-    const API_URL = import.meta.env.VITE_API_URL || 'http://headless-property-wp.local';
+    // We forceren hier direct de URL om alle Render-instellingen te omzeilen
+    const API_URL = 'https://staple:temporary@dull-basketball.localsite.io';
 
     Promise.all([
-      // Aangepast naar enkelvoud 'property' en 'property_type' om de 404 op te lossen
-      fetch(`${API_URL}/wp-json/wp/v2/property?_embed&per_page=100`).then(res => res.json()),
-      fetch(`${API_URL}/wp-json/wp/v2/property_type`).then(res => res.json())
+      fetch(`${API_URL}/wp-json/wp/v2/property?_embed&per_page=100`).then(res => {
+        if (!res.ok) throw new Error('Property data niet gevonden');
+        return res.json();
+      }),
+      fetch(`${API_URL}/wp-json/wp/v2/property_type`).then(res => {
+        if (!res.ok) throw new Error('Property types niet gevonden');
+        return res.json();
+      })
     ])
     .then(([propData, typeData]) => {
       setProperties(Array.isArray(propData) ? propData : []);
