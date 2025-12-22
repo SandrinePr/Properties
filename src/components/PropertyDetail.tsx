@@ -37,7 +37,7 @@ const PropertyDetail: React.FC = () => {
         const res = await fetch(`${API_URL}/wp-json/wp/v2/property/${id}?_embed`, { headers });
         const data = await res.json();
         setProperty(data);
-      } catch (err) { console.error(err); }
+      } catch (err) { console.error("Fetch error:", err); }
     };
     fetchProperty();
   }, [id]);
@@ -65,21 +65,21 @@ const PropertyDetail: React.FC = () => {
       <div className="property-detail__card">
         <h1 className="property-detail__title">{property.title.rendered}</h1>
 
-        {/* Gecropte Grid: Full width images met beperkte hoogte */}
+        {/* Grid: Full width per item, geclipt op hoogte */}
         <div className="funda-grid">
           <div className="funda-grid__main" onClick={() => setPhotoIndex(0)}>
-            <img src={allImages[0]} alt="Hoofdfoto" referrerPolicy="no-referrer" />
+            <img src={allImages[0]} alt="Main" referrerPolicy="no-referrer" />
           </div>
           <div className="funda-grid__side">
             {allImages.slice(1, 4).map((img, idx) => (
               <div key={idx} className="funda-grid__item" onClick={() => setPhotoIndex(idx + 1)}>
-                <img src={img} alt="Detailfoto" referrerPolicy="no-referrer" />
+                <img src={img} alt="Side" referrerPolicy="no-referrer" />
               </div>
             ))}
           </div>
         </div>
 
-        {/* Moderne Viewer met consistente max-width */}
+        {/* Lightbox met tekst gegarandeerd ONDER de foto */}
         {photoIndex !== null && (
           <div className="modern-viewer" onClick={() => setPhotoIndex(null)}>
             <button className="modern-viewer__close">✕ Sluiten</button>
@@ -88,11 +88,13 @@ const PropertyDetail: React.FC = () => {
               <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"><path d="M15 18l-6-6 6-6"/></svg>
             </button>
 
-            <div className="modern-viewer__container">
-              <div className="modern-viewer__image-wrapper">
-                <img src={allImages[photoIndex]} alt={`Foto ${photoIndex + 1}`} />
+            <div className="modern-viewer__layout" onClick={(e) => e.stopPropagation()}>
+              <div className="modern-viewer__image-box">
+                <img src={allImages[photoIndex]} alt="Full view" />
               </div>
-              <div className="modern-viewer__counter">{photoIndex + 1} / {allImages.length}</div>
+              <div className="modern-viewer__caption">
+                <div className="modern-viewer__counter">{photoIndex + 1} / {allImages.length}</div>
+              </div>
             </div>
 
             <button className="modern-viewer__arrow next" onClick={nextPhoto}>
@@ -112,15 +114,12 @@ const PropertyDetail: React.FC = () => {
             </div>
           </section>
 
-          <section className="property-info-full__section">
-            <h2>Voorzieningen</h2>
-            <div className="property-info-full__tags">
-              {property.acf.garden && <span>Tuin ✅</span>}
-              {property.acf.pool && <span>Zwembad ✅</span>}
-              {property.acf.garage && <span>Garage ✅</span>}
-              {property.acf.driveway && <span>Oprit ✅</span>}
-            </div>
-          </section>
+          {property.acf.description && (
+            <section className="property-info-full__section">
+              <h2>Beschrijving</h2>
+              <p className="description-text">{property.acf.description}</p>
+            </section>
+          )}
         </div>
       </div>
     </div>
