@@ -44,10 +44,14 @@ const PropertyDetail: React.FC = () => {
     // Haalt de URL op die je in Render Settings hebt gezet
     const API_URL = import.meta.env.VITE_API_URL || 'http://headless-property-wp.local';
 
-    // Gebruikt de volledige API route met de variabele
-    fetch(`${API_URL}/wp-json/wp/v2/properties/${id}?_embed`)
+    // Maak de headers aan voor de LocalWP tunnel (staple:temporary)
+    const headers = new Headers();
+    headers.set('Authorization', 'Basic ' + btoa('staple:temporary'));
+
+    // Gebruikt 'property' (enkelvoud) en stuurt de headers mee
+    fetch(`${API_URL}/wp-json/wp/v2/property/${id}?_embed`, { headers })
       .then(res => {
-        if (!res.ok) throw new Error('Woning niet gevonden');
+        if (!res.ok) throw new Error('Woning niet gevonden of geen toegang');
         return res.json();
       })
       .then(data => {
