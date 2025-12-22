@@ -65,7 +65,7 @@ const PropertyDetail: React.FC = () => {
       <div className="property-detail__card">
         <h1 className="property-detail__title">{property.title.rendered}</h1>
 
-        {/* Grid: Full width per item, geclipt op hoogte */}
+        {/* Gecropte Grid: Full width per item */}
         <div className="funda-grid">
           <div className="funda-grid__main" onClick={() => setPhotoIndex(0)}>
             <img src={allImages[0]} alt="Main" referrerPolicy="no-referrer" />
@@ -79,7 +79,7 @@ const PropertyDetail: React.FC = () => {
           </div>
         </div>
 
-        {/* Lightbox met tekst gegarandeerd ONDER de foto */}
+        {/* Lightbox: Tekst ALTIJD onder de afbeelding */}
         {photoIndex !== null && (
           <div className="modern-viewer" onClick={() => setPhotoIndex(null)}>
             <button className="modern-viewer__close">✕ Sluiten</button>
@@ -88,12 +88,15 @@ const PropertyDetail: React.FC = () => {
               <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"><path d="M15 18l-6-6 6-6"/></svg>
             </button>
 
-            <div className="modern-viewer__layout" onClick={(e) => e.stopPropagation()}>
-              <div className="modern-viewer__image-box">
-                <img src={allImages[photoIndex]} alt="Full view" />
+            <div className="modern-viewer__wrapper" onClick={(e) => e.stopPropagation()}>
+              <div className="modern-viewer__image-container">
+                <img src={allImages[photoIndex]} alt="Property Large" />
               </div>
-              <div className="modern-viewer__caption">
-                <div className="modern-viewer__counter">{photoIndex + 1} / {allImages.length}</div>
+              
+              <div className="modern-viewer__footer">
+                <div className="modern-viewer__counter">
+                  {photoIndex + 1} / {allImages.length}
+                </div>
               </div>
             </div>
 
@@ -113,13 +116,6 @@ const PropertyDetail: React.FC = () => {
               <div className="data-box"><strong>BOUWJAAR</strong>{property.acf.construction_year}</div>
             </div>
           </section>
-
-          {property.acf.description && (
-            <section className="property-info-full__section">
-              <h2>Beschrijving</h2>
-              <p className="description-text">{property.acf.description}</p>
-            </section>
-          )}
         </div>
       </div>
     </div>
