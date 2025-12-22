@@ -1,30 +1,32 @@
-.pd-root { background: #fdfdfd; padding: 40px 15px; min-height: 100vh; }
-.pd-inner { max-width: 1120px; margin: 0 auto; }
-.pd-title { font-size: 2.2rem; font-weight: 800; margin-bottom: 25px; color: #1a1a1a; }
+.pd-root { background: #fdfdfd; padding: 40px 20px; min-height: 100vh; }
+.pd-container { max-width: 1120px; margin: 0 auto; }
+.pd-title { font-size: 2.5rem; font-weight: 800; margin-bottom: 20px; }
 
-/* DE GRID FIX: Dwingt één strakke onderlijn af */
-.pd-photo-grid {
+/* DE GRID: We gebruiken hier een min-height om de layout vast te zetten */
+.pd-grid-wrapper {
   display: grid;
   grid-template-columns: 2fr 1fr;
   gap: 12px;
   width: 100%;
+  min-height: 450px; // Dwingt een minimale hoogte af voor de hele grid
   margin-bottom: 30px;
 
-  .pd-grid-left {
+  .pd-grid-main {
     cursor: pointer;
     border-radius: 12px;
     overflow: hidden;
-    aspect-ratio: 16 / 10; // De basis voor de grid-hoogte
+    height: 100%; // Vult de min-height van de wrapper
     img { width: 100%; height: 100%; object-fit: cover; display: block; }
   }
 
-  .pd-grid-right {
+  .pd-grid-side {
     display: grid;
-    grid-template-rows: 1fr 1fr; // Verdeelt rechterkolom exact in tweeën
+    grid-template-rows: 1fr 1fr; // Verdeelt de rechterkant exact in tweeën
     gap: 12px;
+    height: 100%;
   }
 
-  .pd-grid-thumb {
+  .pd-side-item {
     cursor: pointer;
     border-radius: 12px;
     overflow: hidden;
@@ -32,35 +34,27 @@
   }
 }
 
-.pd-content-card {
+.pd-info-card {
   background: white;
-  padding: 35px;
+  padding: 30px;
   border-radius: 16px;
   box-shadow: 0 4px 15px rgba(0,0,0,0.05);
 }
 
 /* DE VIEWER: De pijltjes staan hier 'fixed' */
-.pd-viewer {
-  position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 9999;
+.pd-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 9999;
   display: flex; align-items: center; justify-content: center;
 
-  .pd-nav-arrow {
+  .pd-arrow {
     position: absolute; top: 50%; transform: translateY(-50%);
     background: none; border: none; color: white; font-size: 5rem;
     cursor: pointer; padding: 20px; z-index: 10000;
-    &:hover { opacity: 0.7; }
-    &.prev { left: 20px; }
-    &.next { right: 20px; }
+    &:hover { color: #ccc; }
+    &.prev { left: 30px; }
+    &.next { right: 30px; }
   }
 
-  .pd-viewer-box {
-    text-align: center;
-    img { max-width: 85vw; max-height: 80vh; border-radius: 4px; }
-    .pd-counter { color: white; margin-top: 15px; font-weight: bold; }
-  }
-
-  .pd-close {
-    position: absolute; top: 30px; right: 30px; background: white; border: none;
-    padding: 10px 20px; border-radius: 30px; font-weight: bold; cursor: pointer;
-  }
+  .pd-view-content img { max-width: 85vw; max-height: 80vh; border-radius: 4px; }
+  .pd-close { position: absolute; top: 25px; right: 25px; color: white; background: none; border: none; font-size: 2rem; cursor: pointer; }
 }
