@@ -40,7 +40,10 @@ const PropertyDetail: React.FC = () => {
 
   useEffect(() => {
     if (!id) return;
-    fetch(`/wp-json/wp/v2/property/${id}?_embed`)
+
+    const API_URL = import.meta.env.VITE_API_URL || 'http://headless-property-wp.local';
+
+    fetch(`${API_URL}/wp-json/wp/v2/properties/${id}?_embed`)
       .then(res => {
         if (!res.ok) throw new Error('Woning niet gevonden');
         return res.json();
@@ -83,11 +86,11 @@ const PropertyDetail: React.FC = () => {
         <section className="property-detail__section">
           <h2>Basis Kenmerken</h2>
           <div className="property-detail__grid">
-            <div><strong>Prijs</strong>{formatPrice(acf.price)}</div>
-            <div><strong>Slaapkamers</strong>{acf.bedrooms}</div>
-            <div><strong>Badkamers</strong>{acf.bathrooms}</div>
-            <div><strong>Oppervlakte</strong>{acf.square_footage} m²</div>
-            <div><strong>Bouwjaar</strong>{acf.construction_year || 'Onbekend'}</div>
+            <div><strong>Prijs: </strong>{formatPrice(acf.price)}</div>
+            <div><strong>Slaapkamers: </strong>{acf.bedrooms}</div>
+            <div><strong>Badkamers: </strong>{acf.bathrooms}</div>
+            <div><strong>Oppervlakte: </strong>{acf.square_footage} m²</div>
+            <div><strong>Bouwjaar: </strong>{acf.construction_year || 'Onbekend'}</div>
           </div>
         </section>
 
