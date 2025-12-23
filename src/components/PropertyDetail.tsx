@@ -9,6 +9,7 @@ const PropertyDetail: React.FC = () => {
 
   useEffect(() => {
     const fetchProperty = async () => {
+      // Gebruik de variabele van Render of je Pantheon URL
       const API_URL = import.meta.env.VITE_API_URL || 'https://dev-property-dashboard.pantheonsite.io';
       const headers = new Headers();
       headers.set('Authorization', 'Basic ' + btoa('staple:temporary'));
@@ -18,31 +19,30 @@ const PropertyDetail: React.FC = () => {
         const data = await res.json();
         setProperty(data);
       } catch (err) { 
-        console.error("Fout bij ophalen:", err); 
+        console.error("Data ophaalfout:", err); 
       }
     };
     fetchProperty();
   }, [id]);
 
-  if (!property) return <div className="pd-loading">Laden van Pantheon...</div>;
+  // Toon laadscherm zolang de data er nog niet is
+  if (!property) return <div className="pd-loading">Woninggegevens laden...</div>;
 
-  // Beveiligde data extractie om "undefined" errors te voorkomen
+  // VEILIGHEID: Gebruik optionele chaining (?.) voor alle WordPress-velden
   const featuredImage = property._embedded?.['wp:featuredmedia']?.[0]?.source_url;
   const rawGallery = property.acf?.property_gallery;
   const gallery = Array.isArray(rawGallery) ? rawGallery : [];
   
-  // Maak een lijst van alle beschikbare afbeeldingen
   const allImages = featuredImage 
     ? [featuredImage, ...gallery.filter((img: any) => img !== featuredImage)] 
     : gallery;
 
-  // Haal de categorie veilig op (bijv. Apartment of Villa)
   const category = property._embedded?.['wp:term']?.[0]?.[0]?.name;
 
   return (
     <div className="pd-root">
       <div className="pd-container">
-        <Link to="/" className="pd-back">← Terug</Link>
+        <Link to="/" className="pd-back">← Terug naar overzicht</Link>
         
         {category && <span className="pd-category-label">{category}</span>}
         
@@ -53,7 +53,7 @@ const PropertyDetail: React.FC = () => {
             {allImages[0] ? (
               <img src={allImages[0]} alt="Hoofdfoto" referrerPolicy="no-referrer" />
             ) : (
-              <div className="pd-placeholder">Geen afbeelding beschikbaar</div>
+              <div className="pd-placeholder">Geen foto beschikbaar</div>
             )}
           </div>
           
@@ -77,9 +77,9 @@ const PropertyDetail: React.FC = () => {
           <h2 className="pd-section-title">Kenmerken</h2>
           <div className="pd-stats">
             <div className="pd-stat">
-              <span className="label">PRIJS</span>
+              <span className="label">VRAAGPRIJS</span>
               <span className="value">
-                {/* De cruciale fix voor de 'price' error */}
+                {/* DE FIX: De app crasht niet meer als 'price' mist door gebruik van ?. */}
                 {property.acf?.price 
                   ? `€ ${Number(property.acf.price).toLocaleString('nl-NL')}` 
                   : 'Op aanvraag'}
