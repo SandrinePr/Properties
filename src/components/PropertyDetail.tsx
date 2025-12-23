@@ -15,12 +15,12 @@ const PropertyDetail: React.FC = () => {
         const res = await fetch(`${API_URL}/wp-json/wp/v2/property/${id}?_embed`, { headers });
         const data = await res.json();
         setProperty(data);
-      } catch (err) { console.error("Detail fetch error", err); }
+      } catch (err) { console.error("Detail error", err); }
     };
     fetchProperty();
   }, [id]);
 
-  if (!property || !property.acf) return <div className="pd-loading">Laden...</div>;
+  if (!property || !property.acf) return <div className="pd-loading">Data laden...</div>;
 
   const acf = property.acf;
   const featuredImage = property._embedded?.['wp:featuredmedia']?.[0]?.source_url;
@@ -28,14 +28,14 @@ const PropertyDetail: React.FC = () => {
   return (
     <div className="pd-root">
       <div className="pd-container">
-        <Link to="/" className="pd-back">← Terug naar aanbod</Link>
-        <h1 className="pd-title">{property.title.rendered}</h1>
+        <Link to="/" className="pd-back">← Terug</Link>
+        <h1 className="pd-title">{property.title?.rendered}</h1>
         
-        <div className="pd-main-image">
+        <div className="pd-hero">
           {featuredImage && <img src={featuredImage} alt="Property" referrerPolicy="no-referrer" />}
         </div>
 
-        <div className="pd-info-card">
+        <div className="pd-info">
           <div className="pd-stats">
             <div className="pd-stat">
               <span className="label">PRIJS</span>
@@ -50,7 +50,7 @@ const PropertyDetail: React.FC = () => {
               <span className="value">{acf.square_footage || 0} m²</span>
             </div>
           </div>
-          <div className="pd-description" style={{marginTop: '30px', textAlign: 'left'}}>
+          <div className="pd-desc">
             <p>{acf.description}</p>
           </div>
         </div>

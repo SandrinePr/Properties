@@ -27,38 +27,41 @@ function App() {
       setPropertyTypes(Array.isArray(typeData) ? typeData : []);
       setIsLoading(false);
     })
-    .catch(() => setIsLoading(false));
+    .catch((err) => {
+      console.error("Fetch error:", err);
+      setIsLoading(false);
+    });
   }, []);
 
   const filteredProperties = properties.filter(p => {
-    // VEILIGHEID: Als de woning geen ACF data heeft, sla hem over (voorkomt de TypeError)
+    // VEILIGHEID: Als de woning geen ACF data heeft, negeer hem (voorkomt de TypeError)
     if (!p || !p.acf) return false;
 
     const f = currentFilters;
     const acf = p.acf;
 
-    // Filter op titel
-    if (f.search && !p.title.rendered.toLowerCase().includes(f.search.toLowerCase())) return false;
+    // 1. Zoekfilter
+    if (f.search && !p.title?.rendered?.toLowerCase().includes(f.search.toLowerCase())) return false;
     
-    // Filter op prijs
+    // 2. Prijsfilter
     const price = Number(acf.price) || 0;
     if (f.minPrice !== '' && price < Number(f.minPrice)) return false;
     if (f.maxPrice !== '' && price > Number(f.maxPrice)) return false;
 
-    // Filter op type (Taxonomie)
+    // 3. Type (Taxonomie)
     if (f.selectedTypeSlug) {
       const terms = p._embedded?.['wp:term']?.[0] || [];
       if (!terms.some((t: any) => t.slug === f.selectedTypeSlug)) return false;
     }
 
-    return true; // We houden het simpel zodat je resultaten ziet
+    return true; 
   });
 
-  if (isLoading) return <div className="loading">Data ophalen...</div>;
+  if (isLoading) return <div className="loading">Laden...</div>;
 
   return (
     <div className="container">
-      <h1>Woning Aanbod</h1>
+      <h1>Woningoverzicht</h1>
       <FilterForm onFilterChange={setCurrentFilters} />
       
       <div className="type-filter-container">
@@ -86,7 +89,11 @@ function App() {
       </div>
 
       <div className="property-card-grid">
-        {filteredProperties.map(p => <PropertyCard key={p.id} property={p} />)}
+        {filteredProperties.length > 0 ? (
+          filteredProperties.map(p => <PropertyCard key={p.id} property={p} />)
+        ) : (
+          <p>Geen woningen gevonden met de huidige filters.</p>
+        )}
       </div>
     </div>
   );
