@@ -7,16 +7,14 @@ interface Property {
   id: number;
   title: { rendered: string };
   acf: {
-    price: string;
-    bedrooms: string;
-    bathrooms: string;
-    square_footage: string;
-    has_garden: boolean; 
-    has_pool: boolean;
-    has_garage: boolean;
-    has_driveway: boolean;
-    construction_year: string;
-    description: string;
+    price: number | string;
+    bedrooms: number | string;
+    bathrooms: number | string;
+    square_footage: number | string;
+    garden: boolean | string; 
+    pool: boolean | string;
+    garage: boolean | string;
+    driveway: boolean | string;
   };
   _embedded?: {
     'wp:featuredmedia'?: [{ source_url: string }];
@@ -60,37 +58,34 @@ function App() {
     });
   }, []);
 
-  const handleTypeFilter = (slug: string | null) => {
-    setCurrentFilters(prev => ({ 
-      ...prev, 
-      selectedTypeSlug: slug === prev.selectedTypeSlug ? null : slug 
-    }));
-  };
-
   const filteredProperties = properties.filter(property => {
     const f = currentFilters;
-    // CRUCIALE FIX: Fallback naar leeg object als ACF ontbreekt in JSON
     const acf = property.acf || {};
-    const acfToBool = (val: any) => (val === true || val === '1' || val === 1) ? 'yes' : 'no';
+    
+    // Helper om boolean waarden uit je JSON te checken
+    const checkBool = (val: any, filterVal: string) => {
+      if (filterVal === '') return true;
+      const boolVal = (val === true || val === '1' || val === 1);
+      return filterVal === 'yes' ? boolVal : !boolVal;
+    };
 
     if (f.search && !property.title.rendered.toLowerCase().includes(f.search.toLowerCase())) return false;
     
-    const price = acf.price ? parseInt(acf.price) : 0;
-    if (f.minPrice !== '' && price < f.minPrice) return false;
-    if (f.maxPrice !== '' && price > f.maxPrice) return false;
+    const price = Number(acf.price) || 0;
+    if (f.minPrice !== '' && price < Number(f.minPrice)) return false;
+    if (f.maxPrice !== '' && price > Number(f.maxPrice)) return false;
 
-    const beds = acf.bedrooms ? parseInt(acf.bedrooms) : 0;
-    if (f.minBedrooms !== '' && beds < Number(f.minBedrooms)) return false;
+    if (f.minBedrooms !== '' && Number(acf.bedrooms) < Number(f.minBedrooms)) return false;
 
     if (f.selectedTypeSlug) {
       const terms = property._embedded?.['wp:term']?.[0] || [];
       if (!terms.some(t => t.slug === f.selectedTypeSlug)) return false;
     }
 
-    if (f.hasGarden !== '' && acfToBool(acf.has_garden) !== f.hasGarden) return false;
-    if (f.hasPool !== '' && acfToBool(acf.has_pool) !== f.hasPool) return false;
-    if (f.hasGarage !== '' && acfToBool(acf.has_garage) !== f.hasGarage) return false;
-    if (f.hasDriveway !== '' && acfToBool(acf.has_driveway) !== f.hasDriveway) return false;
+    if (!checkBool(acf.garden, f.hasGarden)) return false;
+    if (!checkBool(acf.pool, f.hasPool)) return false;
+    if (!checkBool(acf.garage, f.hasGarage)) return false;
+    if (!checkBool(acf.driveway, f.hasDriveway)) return false;
 
     return true;
   });
@@ -102,22 +97,12 @@ function App() {
       <h1>Vastgoed Dashboard</h1>
       <FilterForm onFilterChange={(f) => setCurrentFilters(f)} />
       
-      <div className="type-filter-container">
-        <h3>Filter op type:</h3>
-        <div className="type-buttons">
-          <button onClick={() => handleTypeFilter(null)} className={currentFilters.selectedTypeSlug === null ? 'active' : ''}>Alle Types</button>
-          {propertyTypes.map(type => (
-            <button key={type.id} onClick={() => handleTypeFilter(type.slug)} className={currentFilters.selectedTypeSlug === type.slug ? 'active' : ''}>
-              {type.name}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="results-count"><strong>{filteredProperties.length}</strong> resultaten</div>
-
       <div className="property-card-grid">
-        {filteredProperties.map(p => <PropertyCard key={p.id} property={p} />)}
+        {filteredProperties.length > 0 ? (
+          filteredProperties.map(p => <PropertyCard key={p.id} property={p} />)
+        ) : (
+          <p>Geen woningen gevonden met deze filters.</p>
+        )}
       </div>
     </div>
   );

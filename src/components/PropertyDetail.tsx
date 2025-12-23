@@ -18,7 +18,7 @@ const PropertyDetail: React.FC = () => {
         const data = await res.json();
         setProperty(data);
       } catch (err) {
-        console.error("Data ophalen mislukt:", err);
+        console.error("Detail ophalen mislukt:", err);
       } finally {
         setLoading(false);
       }
@@ -30,18 +30,21 @@ const PropertyDetail: React.FC = () => {
   if (!property || property.code === 'rest_no_route') return <div className="pd-error">Woning niet gevonden.</div>;
 
   const acf = property.acf || {}; 
-  const title = property.title?.rendered || 'Naamloos object';
-  const content = property.content?.rendered || 'Geen omschrijving beschikbaar.';
+  const title = property.title?.rendered || 'Object';
+  const description = acf.description || 'Geen omschrijving beschikbaar.';
   const featuredImage = property._embedded?.['wp:featuredmedia']?.[0]?.source_url || '';
 
   return (
     <div className="pd-root">
       <div className="pd-container">
-        <Link to="/" className="pd-back">← Terug</Link>
+        <Link to="/" className="pd-back">← Terug naar overzicht</Link>
+        
         <h1 className="pd-title">{title}</h1>
+
         <div className="pd-main-image">
           {featuredImage ? <img src={featuredImage} alt={title} /> : <div className="pd-placeholder">Geen foto</div>}
         </div>
+
         <div className="pd-info-card">
           <div className="pd-stats">
             <div className="pd-stat">
@@ -54,11 +57,16 @@ const PropertyDetail: React.FC = () => {
               <span className="label">SLAAPKAMERS</span>
               <span className="value">{acf.bedrooms || '-'}</span>
             </div>
+            <div className="pd-stat">
+              <span className="label">OPPERVLAKTE</span>
+              <span className="value">{acf.square_footage ? `${acf.square_footage} m²` : '-'}</span>
+            </div>
           </div>
         </div>
+
         <div className="pd-description">
           <h2>Omschrijving</h2>
-          <div dangerouslySetInnerHTML={{ __html: content }} />
+          <p>{description}</p>
         </div>
       </div>
     </div>
