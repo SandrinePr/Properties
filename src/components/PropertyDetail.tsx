@@ -6,56 +6,64 @@ const PropertyDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [property, setProperty] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [imgIndex, setImgIndex] = useState(0);
 
   useEffect(() => {
     const fetchProperty = async () => {
-      const API_URL = import.meta.env.VITE_API_URL || 'https://dev-property-dashboard.pantheonsite.io';
       const headers = new Headers();
       headers.set('Authorization', 'Basic ' + btoa('staple:temporary'));
-      
-      try {
-        const res = await fetch(`${API_URL}/wp-json/wp/v2/property/${id}?_embed`, { headers });
-        const data = await res.json();
-        setProperty(data);
-      } catch (err) {
-        console.error("Fout bij ophalen detail:", err);
-      } finally {
-        setLoading(false);
-      }
+      const res = await fetch(`https://dev-property-dashboard.pantheonsite.io/wp-json/wp/v2/property/${id}?_embed`, { headers });
+      const data = await res.json();
+      setProperty(data);
+      setLoading(false);
     };
     fetchProperty();
   }, [id]);
 
-  if (loading) return <div className="pd-loading">Woning laden...</div>;
-  if (!property || property.code === 'rest_no_route') return <div className="pd-error">Woning niet gevonden.</div>;
+  if (loading || !property) return <div>Laden...</div>;
 
-  const acf = property.acf || {}; 
-  const title = property.title?.rendered || 'Object';
-  const featuredImage = property._embedded?.['wp:featuredmedia']?.[0]?.source_url || '';
+  const acf = property.acf || {};
+  // Haal alle afbeeldingen op uit de gallery (of gebruik de featured image)
+  const images = property._embedded?.['acf:attachment']?.map((img: any) => img.source_url) || 
+                 [property._embedded?.['wp:featuredmedia']?.[0]?.source_url].filter(Boolean);
+
+  const nextImg = () => setImgIndex((prev) => (prev + 1) % images.length);
+  const prevImg = () => setImgIndex((prev) => (prev - 1 + images.length) % images.length);
 
   return (
     <div className="pd-root">
       <div className="pd-container">
         <Link to="/" className="pd-back">← Terug</Link>
-        <h1 className="pd-title">{title}</h1>
-        <div className="pd-main-image">
-          {featuredImage && <img src={featuredImage} alt={title} />}
+        <h1>{property.title.rendered}</h1>
+
+        <div className="pd-gallery">
+          {images.length > 0 ? (
+            <>
+              <img src={images[imgIndex]} alt="Gallery" />
+              {images.length > 1 && (
+                <div className="pd-nav">
+                  <button onClick={prevImg}>❮</button>
+                  <button onClick={nextImg}>❯</button>
+                </div>
+              )}
+            </>
+          ) : <div className="placeholder">Geen foto's</div>}
         </div>
-        <div className="pd-info-card">
-          <div className="pd-stats">
-            <div className="pd-stat">
-              <span className="label">PRIJS</span>
-              <span className="value">{acf.price ? `€ ${Number(acf.price).toLocaleString('nl-NL')}` : 'Op aanvraag'}</span>
-            </div>
-            <div className="pd-stat">
-              <span className="label">SLAAPKAMERS</span>
-              <span className="value">{acf.bedrooms || '-'}</span>
-            </div>
+
+        <div className="pd-grid">
+          <div className="pd-info">
+            <h2>Details</h2>
+            <ul>
+              <li><strong>Prijs:</strong> € {Number(acf.price).toLocaleString()}</li>
+              <li><strong>Slaapkamers:</strong> {acf.bedrooms}</li>
+              <li><strong>Oppervlakte:</strong> {acf.square_footage} m²</li>
+              <li><strong>Bouwjaar:</strong> {acf.construction_year}</li>
+            </ul>
           </div>
-        </div>
-        <div className="pd-description">
-          <h2>Beschrijving</h2>
-          <p>{acf.description || 'Geen beschrijving beschikbaar.'}</p>
+          <div className="pd-desc">
+            <h2>Omschrijving</h2>
+            <p>{acf.description}</p>
+          </div>
         </div>
       </div>
     </div>
