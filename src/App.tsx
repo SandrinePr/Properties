@@ -23,6 +23,7 @@ function App() {
       fetch(`${API_URL}/wp-json/wp/v2/property_type`, { headers }).then(res => res.json())
     ])
     .then(([propData, typeData]) => {
+      console.log("Ruwe data binnen:", propData);
       setProperties(Array.isArray(propData) ? propData : []);
       setPropertyTypes(Array.isArray(typeData) ? typeData : []);
       setIsLoading(false);
@@ -34,40 +35,33 @@ function App() {
   }, []);
 
   const filteredProperties = properties.filter(p => {
-    // 1. Veiligheid: Geen ACF = niet tonen (voorkomt crashes)
+    // 1. Veiligheid: Skip woningen zonder data zodat de boel niet crasht
     if (!p || !p.acf) return false;
 
     const f = currentFilters;
     const acf = p.acf;
 
-    // 2. Zoekfilter (Check op titel)
-    if (f.search && !p.title?.rendered?.toLowerCase().includes(f.search.toLowerCase())) return false;
+    // 2. Zoekfilter (Alleen als er iets getypt is)
+    if (f.search && !p.title?.rendered?.toLowerCase().includes(f.search.toLowerCase())) {
+        return false;
+    }
     
-    // 3. Prijsfilter
+    // 3. Prijsfilters (Alleen als er een getal is ingevuld)
     const price = Number(acf.price) || 0;
     if (f.minPrice !== '' && price < Number(f.minPrice)) return false;
     if (f.maxPrice !== '' && price > Number(f.maxPrice)) return false;
 
-    // 4. Slaapkamers
-    const bedrooms = Number(acf.bedrooms) || 0;
-    if (f.minBedrooms !== '' && bedrooms < Number(f.minBedrooms)) return false;
+    // 4. Slaapkamers filter
+    if (f.minBedrooms !== '' && (Number(acf.bedrooms) || 0) < Number(f.minBedrooms)) return false;
 
-    // 5. Woningtype (Taxonomie)
+    // 5. Woningtype filter (De knoppen onder de zoekbalk)
     if (f.selectedTypeSlug) {
       const terms = p._embedded?.['wp:term']?.[0] || [];
-      if (!terms.some((t: any) => t.slug === f.selectedTypeSlug)) return false;
+      const hasType = terms.some((t: any) => t.slug === f.selectedTypeSlug);
+      if (!hasType) return false;
     }
 
-    // 6. Extra opties (Booleans)
-    const checkBool = (val: any, filter: string) => {
-      if (filter === '') return true;
-      const isTrue = val === true || val === "1" || val === 1;
-      return filter === 'yes' ? isTrue : !isTrue;
-    };
-
-    if (!checkBool(acf.garden, f.hasGarden)) return false;
-    if (!checkBool(acf.pool, f.hasPool)) return false;
-
+    // WE LATEN DE BOOLEANS (TUIN/ZWEMBAD) HIER EVEN WEG VOOR MAXIMAAL RESULTAAT
     return true;
   });
 
@@ -75,10 +69,11 @@ function App() {
 
   return (
     <div className="container">
-      <h1>Woningoverzicht</h1>
+      <h1 className="main-title">WONINGOVERZICHT</h1>
       
-      {/* De filters zijn weer terug! */}
-      <FilterForm onFilterChange={setCurrentFilters} />
+      <div className="filter-section">
+        <FilterForm onFilterChange={setCurrentFilters} />
+      </div>
       
       <div className="type-filter-container">
         <div className="type-buttons">
@@ -100,14 +95,18 @@ function App() {
         </div>
       </div>
 
-      <div className="results-count">
-        <strong>{filteredProperties.length}</strong> resultaten gevonden
+      <div className="results-count-wrapper">
+        <span className="results-count"><strong>{filteredProperties.length}</strong> resultaten gevonden</span>
       </div>
 
       <div className="property-card-grid">
-        {filteredProperties.map(p => (
-          <PropertyCard key={p.id} property={p} />
-        ))}
+        {filteredProperties.length > 0 ? (
+          filteredProperties.map(p => (
+            <PropertyCard key={p.id} property={p} />
+          ))
+        ) : (
+          <div className="no-results">Geen woningen gevonden die voldoen aan je zoekopdracht.</div>
+        )}
       </div>
     </div>
   );
