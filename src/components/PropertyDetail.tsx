@@ -25,33 +25,56 @@ const PropertyDetail: React.FC = () => {
   const acf = property.acf;
   const featuredImage = property._embedded?.['wp:featuredmedia']?.[0]?.source_url;
   const gallery: string[] = Array.isArray(acf.property_gallery) ? acf.property_gallery : [];
-  const galleryCount = gallery.length;
+  
+  // We berekenen hoeveel extra foto's er zijn naast de 3 die we tonen
+  // (Featured image + 2 gallery images = 3 getoonde foto's)
+  const extraCount = gallery.length - 2;
 
   return (
     <div className="pd-root">
       <div className="pd-container">
-        <Link to="/" className="pd-back">← Terug</Link>
+        <Link to="/" className="pd-back">← Terug naar overzicht</Link>
         <h1 className="pd-title">{property.title?.rendered}</h1>
 
-        {/* Gallery grid bovenaan */}
-        {galleryCount > 0 ? (
-          <div className="gallery-grid" style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(galleryCount, 3)}, 1fr)`, gap: '8px', marginBottom: 16 }}>
-            {gallery.slice(0, 3).map((img, idx) => (
-              <div key={idx} style={{ position: 'relative' }}>
-                <img src={img} alt={`Gallery ${idx+1}`} style={{ width: '100%', height: 180, objectFit: 'cover', borderRadius: 8 }} />
-                {idx === 2 && galleryCount > 3 && (
-                  <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.5)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 22, borderRadius: 8 }}>
-                    +{galleryCount - 3}
-                  </div>
-                )}
-              </div>
-            ))}
+        {/* Mosaic Gallery Grid */}
+        <div className="pd-mosaic-grid">
+          {/* LINKERKANT: Main Image */}
+          <div className="pd-main-img">
+            {featuredImage ? (
+              <img src={featuredImage} alt="Main" referrerPolicy="no-referrer" />
+            ) : (
+              <div className="pd-placeholder">Geen hoofdafbeelding</div>
+            )}
           </div>
-        ) : (
-          <div className="pd-hero">
-            {featuredImage && <img src={featuredImage} alt="Property" referrerPolicy="no-referrer" />}
+
+          {/* RECHTSKANT: Twee kleinere afbeeldingen boven elkaar */}
+          <div className="pd-side-imgs">
+            {/* Foto 1 (Rechtsboven) */}
+            <div className="pd-side-item">
+              {gallery[0] ? (
+                <img src={gallery[0]} alt="Gallery 1" />
+              ) : (
+                <div className="pd-placeholder"></div>
+              )}
+            </div>
+
+            {/* Foto 2 (Rechtsonder) + Eventuele Plus-tag */}
+            <div className="pd-side-item">
+              {gallery[1] ? (
+                <>
+                  <img src={gallery[1]} alt="Gallery 2" />
+                  {extraCount > 0 && (
+                    <div className="pd-overlay">
+                      <span>+{extraCount}</span>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="pd-placeholder"></div>
+              )}
+            </div>
           </div>
-        )}
+        </div>
 
         <div className="pd-info">
           <div className="pd-stats">
@@ -84,7 +107,7 @@ const PropertyDetail: React.FC = () => {
               <span className="value">{acf.garage ? 'Ja' : 'Nee'}</span>
             </div>
             <div className="pd-stat">
-              <span className="label">Oprit</span>
+              <span className="label">OPRIT</span>
               <span className="value">{acf.driveway ? 'Ja' : 'Nee'}</span>
             </div>
             <div className="pd-stat">
@@ -93,6 +116,7 @@ const PropertyDetail: React.FC = () => {
             </div>
           </div>
           <div className="pd-desc">
+            <h3>Beschrijving</h3>
             <p>{acf.description}</p>
           </div>
         </div>
