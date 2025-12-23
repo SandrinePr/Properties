@@ -2,34 +2,37 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 const PropertyCard = ({ property }: { property: any }) => {
-    // Cruciaal: als acf mist, stop hier
-    if (!property || !property.acf) return null;
+    // Als er echt geen data is, toon een foutmelding kaart
+    if (!property) return null;
 
-    const { title, acf, _embedded } = property;
-    const featuredImage = _embedded?.['wp:featuredmedia']?.[0]?.source_url;
-
-    const price = Number(acf.price);
-    const displayPrice = isNaN(price) || price === 0 
-        ? "Prijs op aanvraag" 
-        : price.toLocaleString('nl-NL', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0 });
+    const title = property.title?.rendered || "Naamloze woning";
+    const acf = property.acf || {};
+    
+    // Probeer de afbeelding te vinden, anders een grijze box
+    const featuredImage = property._embedded?.['wp:featuredmedia']?.[0]?.source_url;
 
     return (
-        <div className="property-card">
-            <div className="card-image">
-                {featuredImage && <img src={featuredImage} alt={title?.rendered} referrerPolicy="no-referrer" />}
+        <div className="property-card" style={{ border: '1px solid #ccc', marginBottom: '20px', padding: '10px' }}>
+            <div className="card-image" style={{ background: '#eee', height: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                {featuredImage ? (
+                    <img src={featuredImage} alt={title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} referrerPolicy="no-referrer" />
+                ) : (
+                    <span>Geen afbeelding</span>
+                )}
             </div>
             <div className="card-content">
                 <Link to={`/property/${property.id}`}>
-                    <h3>{title?.rendered || 'Naamloos object'}</h3>       
+                    <h3 style={{ margin: '10px 0' }}>{title}</h3>       
                 </Link>
-                <span className="price">{displayPrice}</span>
-                <div className="specs">
-                    <span>🛏️ {acf.bedrooms || 0}</span>
-                    <span>🚿 {acf.bathrooms || 0}</span>
-                    <span>📏 {acf.square_footage || 0} m²</span>
+                <p className="price" style={{ fontWeight: 'bold', fontSize: '1.2rem' }}>
+                    {acf.price ? `€ ${Number(acf.price).toLocaleString('nl-NL')}` : "Prijs op aanvraag"}
+                </p>
+                <div className="specs" style={{ display: 'flex', gap: '10px', color: '#666' }}>
+                    <span>🛏️ {acf.bedrooms || '?'}</span>
+                    <span>📏 {acf.square_footage || '?'} m²</span>
                 </div>
                 <Link to={`/property/${property.id}`}>
-                    <button className="btn-main">Bekijk Details</button>
+                    <button style={{ marginTop: '10px', width: '100%', padding: '10px', cursor: 'pointer' }}>Bekijk Details</button>
                 </Link>
             </div>
         </div>
