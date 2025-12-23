@@ -23,50 +23,47 @@ function App() {
       fetch(`${API_URL}/wp-json/wp/v2/property_type`, { headers }).then(res => res.json())
     ])
     .then(([propData, typeData]) => {
-      // DEBUG: Kijk in je console of je hier een lijst met objecten ziet!
-      console.log("Data van server:", propData);
+      // We zorgen dat we altijd een array hebben, zelfs bij fouten
       setProperties(Array.isArray(propData) ? propData : []);
       setPropertyTypes(Array.isArray(typeData) ? typeData : []);
       setIsLoading(false);
     })
     .catch((err) => {
-      console.error("Fetch fout:", err);
+      console.error("Data ophalen mislukt:", err);
       setIsLoading(false);
     });
   }, []);
 
   const filteredProperties = properties.filter(p => {
-    // STAP 1: Alleen properties met ACF data doorlaten
+    // VEILIGHEID: Als de woning geen ACF data heeft, negeer hem volledig (voorkomt crashes)
     if (!p || !p.acf) return false;
 
     const f = currentFilters;
     const acf = p.acf;
 
-    // STAP 2: Zoekterm (alleen filteren als er echt iets getypt is)
-    if (f.search.trim() !== '') {
+    // 1. Zoekfilter (alleen filteren als er echt getypt is)
+    if (f.search && f.search.trim() !== '') {
       const title = p.title?.rendered?.toLowerCase() || '';
       if (!title.includes(f.search.toLowerCase())) return false;
     }
     
-    // STAP 3: Prijs (wees heel tolerant: als er geen prijs is ingevuld, laat hem zien)
-    const price = Number(acf.price);
-    if (!isNaN(price) && price > 0) {
-        if (f.minPrice !== '' && price < Number(f.minPrice)) return false;
-        if (f.maxPrice !== '' && price > Number(f.maxPrice)) return false;
-    }
+    // 2. Prijsfilter (getallen forceren)
+    const price = Number(acf.price) || 0;
+    if (f.minPrice !== '' && price < Number(f.minPrice)) return false;
+    if (f.maxPrice !== '' && price > Number(f.maxPrice)) return false;
 
-    // STAP 4: Type (Knoppen)
+    // 3. Woningtype (Taxonomie)
     if (f.selectedTypeSlug) {
       const terms = p._embedded?.['wp:term']?.[0] || [];
       const hasType = terms.some((t: any) => t.slug === f.selectedTypeSlug);
       if (!hasType) return false;
     }
 
-    // De rest van de filters (tuin/pool) negeren we nu even om te zorgen dat de lijst vult!
+    // Voor nu negeren we tuin/zwembad om te zorgen dat je ALLES ziet
     return true;
   });
 
-  if (isLoading) return <div className="loading">Data laden uit WordPress...</div>;
+  if (isLoading) return <div className="loading">Data wordt opgehaald uit WordPress...</div>;
 
   return (
     <div className="container">
@@ -96,7 +93,7 @@ function App() {
         </div>
       </div>
 
-      <div className="status-bar">
+      <div className="results-info">
         <span><strong>{filteredProperties.length}</strong> woningen gevonden</span>
       </div>
 
@@ -106,8 +103,8 @@ function App() {
             <PropertyCard key={p.id} property={p} />
           ))
         ) : (
-          <div className="empty-state">
-            <p>Geen woningen gevonden. Probeer je filters te resetten.</p>
+          <div className="no-data-msg">
+            Geen woningen gevonden. Klik op "Alle Types" of wis je zoekopdracht.
           </div>
         )}
       </div>
