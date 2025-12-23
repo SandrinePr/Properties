@@ -39,9 +39,8 @@ function App() {
   }, []);
 
   const filtered = properties.filter((p) => {
-    // VEILIGHEID: Sla woningen zonder data over om crashes te voorkomen
-    if (!p || !p.acf) return false;
-    const acf = p.acf;
+    if (!p) return false;
+    const acf = p.acf || {};
 
     // Zoekmatch
     if (filters.search) {
@@ -61,7 +60,7 @@ function App() {
       if (!typeMatch && !termMatch) return false;
     }
 
-    return true; 
+    return true;
   });
 
   if (isLoading) return <div className="loading">Data laden...</div>;

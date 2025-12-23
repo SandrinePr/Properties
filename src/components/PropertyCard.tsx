@@ -1,11 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
+
 const PropertyCard = ({ property }: { property: any }) => {
-    if (!property || !property.acf) return null;
+    if (!property) return null;
 
     const title = property.title?.rendered || "Naamloze woning";
-    const acf = property.acf;
+    const acf = property.acf || {};
     const featuredImage = property._embedded?.['wp:featuredmedia']?.[0]?.source_url;
 
     const price = Number(acf.price);
@@ -28,8 +29,8 @@ const PropertyCard = ({ property }: { property: any }) => {
                 </Link>
                 <p className="price">{displayPrice}</p>
                 <div className="specs">
-                    <span>🛏️ {acf.bedrooms || 0}</span>
-                    <span>📏 {acf.square_footage || 0} m²</span>
+                    <span>🛏️ {acf.bedrooms ?? '-'}</span>
+                    <span>📏 {acf.square_footage ?? '-'} m²</span>
                 </div>
                 <Link to={`/property/${property.id}`}>
                     <button>Bekijk Details</button>
