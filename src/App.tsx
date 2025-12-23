@@ -1,42 +1,104 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import PropertyCard from './components/PropertyCard';
+import FilterForm, { Filters } from './components/FilterForm';
+import './App.scss';
 
-const PropertyCard = ({ property }: { property: any }) => {
-    if (!property || !property.acf) return null;
+const PROPERTY_TYPES = [
+  { label: 'Alle Types', slug: null },
+  { label: 'Apartment', slug: 'apartment' },
+  { label: 'Bungalow', slug: 'bungalow' },
+  { label: 'Commercial', slug: 'commercial' },
+  { label: 'House', slug: 'house' },
+  { label: 'Penthouse', slug: 'penthouse' },
+  { label: 'Studio', slug: 'studio' },
+  { label: 'Villa', slug: 'villa' },
+];
 
-    const title = property.title?.rendered || "Naamloze woning";
-    const acf = property.acf;
-    const featuredImage = property._embedded?.['wp:featuredmedia']?.[0]?.source_url;
+function App() {
+  const [properties, setProperties] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [filters, setFilters] = useState<Filters>({
+    search: '', minPrice: '', maxPrice: '', minBedrooms: '', minBathrooms: '',
+    selectedTypeSlug: null, hasGarden: '', hasPool: '', hasGarage: '', hasDriveway: '',
+  });
+  const [selectedType, setSelectedType] = useState<string | null>(null);
 
-    const price = Number(acf.price);
-    const displayPrice = isNaN(price) || price === 0 
-        ? "Prijs op aanvraag" 
-        : `€ ${price.toLocaleString('nl-NL')}`;
+  useEffect(() => {
+    const API_URL = 'https://dev-property-dashboard.pantheonsite.io';
+    const headers = new Headers();
+    headers.set('Authorization', 'Basic ' + btoa('staple:temporary'));
 
-    return (
-        <div className="property-card">
-            <div className="card-image">
-                {featuredImage ? (
-                    <img src={featuredImage} alt={title} referrerPolicy="no-referrer" />
-                ) : (
-                    <div className="placeholder">Geen afbeelding</div>
-                )}
-            </div>
-            <div className="card-content">
-                <Link to={`/property/${property.id}`}>
-                    <h3>{title}</h3>       
-                </Link>
-                <p className="price">{displayPrice}</p>
-                <div className="specs">
-                    <span>🛏️ {acf.bedrooms || 0}</span>
-                    <span>📏 {acf.square_footage || 0} m²</span>
-                </div>
-                <Link to={`/property/${property.id}`}>
-                    <button>Bekijk Details</button>
-                </Link>
-            </div>
+    fetch(`${API_URL}/wp-json/wp/v2/property?_embed&per_page=100`, { headers })
+      .then(res => res.json())
+      .then(data => {
+        setProperties(Array.isArray(data) ? data : []);
+        setIsLoading(false);
+      })
+      .catch(() => setIsLoading(false));
+  }, []);
+
+  const filtered = properties.filter((p) => {
+    // Veiligheid: als ACF ontbreekt, skip deze woning om crashes te voorkomen
+    if (!p || !p.acf) return false;
+    const acf = p.acf;
+
+    // Zoekmatch
+    if (filters.search) {
+      const title = p.title?.rendered?.toLowerCase() || "";
+      const searchLower = filters.search.toLowerCase();
+      if (!title.includes(searchLower)) return false;
+    }
+
+    // Prijsmatch
+    const price = Number(acf.price) || 0;
+    if (filters.minPrice !== '' && price < Number(filters.minPrice)) return false;
+    if (filters.maxPrice !== '' && price > Number(filters.maxPrice)) return false;
+
+    // Slaapkamers
+    if (filters.minBedrooms !== '' && (Number(acf.bedrooms) || 0) < Number(filters.minBedrooms)) return false;
+
+    // Woningtype
+    if (selectedType) {
+      const typeMatch = acf.type === selectedType;
+      const termMatch = p._embedded?.['wp:term']?.[0]?.some((t: any) => t.slug === selectedType);
+      if (!typeMatch && !termMatch) return false;
+    }
+
+    return true;
+  });
+
+  if (isLoading) return <div className="loading">Data wordt opgehaald...</div>;
+
+  return (
+    <div className="container">
+      <h1>WONINGOVERZICHT</h1>
+      <FilterForm onFilterChange={setFilters} />
+
+      <div className="type-filter-container">
+        <div className="type-buttons">
+          {PROPERTY_TYPES.map((type) => (
+            <button
+              key={type.label}
+              className={selectedType === type.slug ? 'active' : ''}
+              onClick={() => setSelectedType(type.slug)}
+            >
+              {type.label}
+            </button>
+          ))}
         </div>
-    );
-};
+      </div>
 
-export default PropertyCard;
+      <div className="results-count">
+        <strong>{filtered.length}</strong> resultaten gevonden
+      </div>
+
+      <div className="property-card-grid">
+        {filtered.map(p => (
+          <PropertyCard key={p.id} property={p} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export default App;
