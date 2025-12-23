@@ -9,15 +9,22 @@ const PropertyCard = ({ property }: { property: any }) => {
     const acf = property.acf || null;
     const featuredImage = property._embedded?.['wp:featuredmedia']?.[0]?.source_url;
 
+
+    // Parseer velden als getal
     let price = acf && acf.price ? Number(acf.price) : null;
     let displayPrice = (price === null || isNaN(price) || price === 0)
         ? "Prijs op aanvraag"
         : `€ ${price.toLocaleString('nl-NL')}`;
 
-    // Fallbacks voor velden
-    const bedrooms = acf && acf.bedrooms !== undefined && acf.bedrooms !== null && acf.bedrooms !== '' ? acf.bedrooms : <span style={{color:'#bbb'}}>Geen data</span>;
-    const bathrooms = acf && acf.bathrooms !== undefined && acf.bathrooms !== null && acf.bathrooms !== '' ? acf.bathrooms : <span style={{color:'#bbb'}}>Geen data</span>;
-    const area = acf && acf.square_footage !== undefined && acf.square_footage !== null && acf.square_footage !== '' ? acf.square_footage : <span style={{color:'#bbb'}}>Geen data</span>;
+    const bedrooms = acf && acf.bedrooms !== undefined && acf.bedrooms !== null && acf.bedrooms !== ''
+        ? Number(acf.bedrooms)
+        : <span style={{color:'#bbb'}}>Geen data</span>;
+    const bathrooms = acf && acf.bathrooms !== undefined && acf.bathrooms !== null && acf.bathrooms !== ''
+        ? Number(acf.bathrooms)
+        : <span style={{color:'#bbb'}}>Geen data</span>;
+    const area = acf && acf.square_footage !== undefined && acf.square_footage !== null && acf.square_footage !== ''
+        ? Number(acf.square_footage)
+        : <span style={{color:'#bbb'}}>Geen data</span>;
 
     return (
         <div className="property-card">
