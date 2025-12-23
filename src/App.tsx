@@ -1,11 +1,8 @@
-// src/App.tsx
-///haalt data op
 import { useState, useEffect } from 'react';
 import PropertyCard from './components/PropertyCard';
 import FilterForm, { type Filters } from './components/FilterForm'; 
 import './App.scss';
 
-//interface
 interface Property {
   id: number;
   title: { rendered: string };
@@ -33,7 +30,6 @@ interface TaxonomyTerm {
   slug: string;
 }
 
-//homepage
 function App() {
   const [properties, setProperties] = useState<Property[]>([]);
   const [propertyTypes, setPropertyTypes] = useState<TaxonomyTerm[]>([]); 
@@ -45,10 +41,7 @@ function App() {
   });
 
   useEffect(() => {
-    // Definieer de basis URL (zonder credentials)
-    const API_URL = import.meta.env.VITE_API_URL || 'http://headless-property-wp.local';
-    
-    // Maak de headers aan met de inloggegevens om de browser-beveiliging te passeren
+    const API_URL = import.meta.env.VITE_API_URL || 'https://dev-property-dashboard.pantheonsite.io';
     const headers = new Headers();
     headers.set('Authorization', 'Basic ' + btoa('staple:temporary'));
 
@@ -76,23 +69,28 @@ function App() {
 
   const filteredProperties = properties.filter(property => {
     const f = currentFilters;
+    // CRUCIALE FIX: Fallback naar leeg object als ACF ontbreekt in JSON
+    const acf = property.acf || {};
     const acfToBool = (val: any) => (val === true || val === '1' || val === 1) ? 'yes' : 'no';
 
     if (f.search && !property.title.rendered.toLowerCase().includes(f.search.toLowerCase())) return false;
-    if (f.minPrice !== '' && parseInt(property.acf.price) < f.minPrice) return false;
-    if (f.maxPrice !== '' && parseInt(property.acf.price) > f.maxPrice) return false;
-    if (f.minBedrooms !== '' && parseInt(property.acf.bedrooms) < f.minBedrooms) return false;
-    if (f.minBathrooms !== '' && parseInt(property.acf.bathrooms) < f.minBathrooms) return false;
+    
+    const price = acf.price ? parseInt(acf.price) : 0;
+    if (f.minPrice !== '' && price < f.minPrice) return false;
+    if (f.maxPrice !== '' && price > f.maxPrice) return false;
+
+    const beds = acf.bedrooms ? parseInt(acf.bedrooms) : 0;
+    if (f.minBedrooms !== '' && beds < Number(f.minBedrooms)) return false;
 
     if (f.selectedTypeSlug) {
       const terms = property._embedded?.['wp:term']?.[0] || [];
       if (!terms.some(t => t.slug === f.selectedTypeSlug)) return false;
     }
 
-    if (f.hasGarden !== '' && acfToBool(property.acf.has_garden) !== f.hasGarden) return false;
-    if (f.hasPool !== '' && acfToBool(property.acf.has_pool) !== f.hasPool) return false;
-    if (f.hasGarage !== '' && acfToBool(property.acf.has_garage) !== f.hasGarage) return false;
-    if (f.hasDriveway !== '' && acfToBool(property.acf.has_driveway) !== f.hasDriveway) return false;
+    if (f.hasGarden !== '' && acfToBool(acf.has_garden) !== f.hasGarden) return false;
+    if (f.hasPool !== '' && acfToBool(acf.has_pool) !== f.hasPool) return false;
+    if (f.hasGarage !== '' && acfToBool(acf.has_garage) !== f.hasGarage) return false;
+    if (f.hasDriveway !== '' && acfToBool(acf.has_driveway) !== f.hasDriveway) return false;
 
     return true;
   });
@@ -107,27 +105,16 @@ function App() {
       <div className="type-filter-container">
         <h3>Filter op type:</h3>
         <div className="type-buttons">
-          <button 
-            onClick={() => handleTypeFilter(null)}
-            className={currentFilters.selectedTypeSlug === null ? 'active' : ''}
-          >
-            Alle Types
-          </button>
+          <button onClick={() => handleTypeFilter(null)} className={currentFilters.selectedTypeSlug === null ? 'active' : ''}>Alle Types</button>
           {propertyTypes.map(type => (
-            <button 
-              key={type.id} 
-              onClick={() => handleTypeFilter(type.slug)}
-              className={currentFilters.selectedTypeSlug === type.slug ? 'active' : ''}
-            >
+            <button key={type.id} onClick={() => handleTypeFilter(type.slug)} className={currentFilters.selectedTypeSlug === type.slug ? 'active' : ''}>
               {type.name}
             </button>
           ))}
         </div>
       </div>
 
-      <div className="results-count">
-        <strong>{filteredProperties.length}</strong> resultaten gevonden
-      </div>
+      <div className="results-count"><strong>{filteredProperties.length}</strong> resultaten</div>
 
       <div className="property-card-grid">
         {filteredProperties.map(p => <PropertyCard key={p.id} property={p} />)}
