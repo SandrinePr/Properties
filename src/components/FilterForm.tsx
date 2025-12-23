@@ -56,23 +56,6 @@ const FilterForm: React.FC<FilterFormProps> = ({ onFilterChange }) => {
         <button type="button" className="btn-secondary" onClick={() => setShowAdvanced(!showAdvanced)}>
           {showAdvanced ? 'Minder filters' : 'Meer filters'}
         </button>
-        
-        {showAdvanced && (
-          <div className="advanced-options" style={{display: 'flex', gap: '20px', alignItems: 'center'}}>
-             <div className="input-group">
-                <label>Tuin</label>
-                <select name="hasGarden" value={currentFilters.hasGarden} onChange={handleChange}>
-                  <option value="">Alles</option>
-                  <option value="yes">Ja</option>
-                  <option value="no">Nee</option>
-                </select>
-             </div>
-             <div className="input-group">
-                <label>Slaapkamers</label>
-                <input name="minBedrooms" type="number" value={currentFilters.minBedrooms} onChange={handleChange} style={{width: '80px'}} />
-             </div>
-          </div>
-        )}
       </div>
     </div>
   );
