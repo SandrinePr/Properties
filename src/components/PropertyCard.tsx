@@ -1,5 +1,4 @@
 import React from 'react';
-import React from 'react';
 import { Link } from 'react-router-dom';
 
 const PropertyCard = ({ property }: { property: any }) => {
@@ -61,7 +60,8 @@ const PropertyCard = ({ property }: { property: any }) => {
                     <span title="Badkamers">🛁 {bathrooms}</span>
                     <span title="Oppervlakte">📏 {area} m²</span>
                 </div>
-                {/* Toon alle ACF velden overzichtelijk */}
+                
+                {/* Dynamische lijst van overige ACF velden */}
                 <div className="acf-fields" style={{ marginTop: 10, fontSize: '0.95em', color: '#444' }}>
                     {Object.entries(acf).map(([key, value]) => (
                         key !== 'property_gallery' && value !== '' && value !== null && value !== undefined ? (
@@ -69,9 +69,11 @@ const PropertyCard = ({ property }: { property: any }) => {
                         ) : null
                     ))}
                 </div>
+
                 {!acf || Object.keys(acf).length === 0 ? (
                     <div style={{color:'#bbb', fontSize:'0.95em', marginTop:'8px'}}>Geen extra woningdata beschikbaar</div>
                 ) : null}
+
                 <Link to={`/property/${property.id}`}>
                     <button>Bekijk Details</button>
                 </Link>
@@ -80,5 +82,4 @@ const PropertyCard = ({ property }: { property: any }) => {
     );
 };
 
-export default PropertyCard;
 export default PropertyCard;
