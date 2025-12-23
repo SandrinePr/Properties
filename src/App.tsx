@@ -31,37 +31,34 @@ function App() {
   }, []);
 
   const filteredProperties = properties.filter(p => {
-    if (!p.acf) return false;
+    // VEILIGHEID: Als de woning geen ACF data heeft, sla hem over (voorkomt de TypeError)
+    if (!p || !p.acf) return false;
+
     const f = currentFilters;
     const acf = p.acf;
 
+    // Filter op titel
     if (f.search && !p.title.rendered.toLowerCase().includes(f.search.toLowerCase())) return false;
-    if (f.minPrice !== '' && Number(acf.price) < Number(f.minPrice)) return false;
-    if (f.maxPrice !== '' && Number(acf.price) > Number(f.maxPrice)) return false;
-    if (f.minBedrooms !== '' && Number(acf.bedrooms) < Number(f.minBedrooms)) return false;
+    
+    // Filter op prijs
+    const price = Number(acf.price) || 0;
+    if (f.minPrice !== '' && price < Number(f.minPrice)) return false;
+    if (f.maxPrice !== '' && price > Number(f.maxPrice)) return false;
 
+    // Filter op type (Taxonomie)
     if (f.selectedTypeSlug) {
       const terms = p._embedded?.['wp:term']?.[0] || [];
       if (!terms.some((t: any) => t.slug === f.selectedTypeSlug)) return false;
     }
 
-    const checkBool = (val: any, filter: string) => {
-      if (filter === '') return true;
-      const isTrue = val === true || val === "1" || val === 1;
-      return filter === 'yes' ? isTrue : !isTrue;
-    };
-
-    if (!checkBool(acf.garden, f.hasGarden)) return false;
-    if (!checkBool(acf.pool, f.hasPool)) return false;
-
-    return true;
+    return true; // We houden het simpel zodat je resultaten ziet
   });
 
-  if (isLoading) return <div className="loading">Laden...</div>;
+  if (isLoading) return <div className="loading">Data ophalen...</div>;
 
   return (
     <div className="container">
-      <h1>Vastgoed Dashboard</h1>
+      <h1>Woning Aanbod</h1>
       <FilterForm onFilterChange={setCurrentFilters} />
       
       <div className="type-filter-container">

@@ -15,7 +15,7 @@ const PropertyDetail: React.FC = () => {
         const res = await fetch(`${API_URL}/wp-json/wp/v2/property/${id}?_embed`, { headers });
         const data = await res.json();
         setProperty(data);
-      } catch (err) { console.error(err); }
+      } catch (err) { console.error("Detail fetch error", err); }
     };
     fetchProperty();
   }, [id]);
@@ -28,7 +28,7 @@ const PropertyDetail: React.FC = () => {
   return (
     <div className="pd-root">
       <div className="pd-container">
-        <Link to="/" className="pd-back">← Terug</Link>
+        <Link to="/" className="pd-back">← Terug naar aanbod</Link>
         <h1 className="pd-title">{property.title.rendered}</h1>
         
         <div className="pd-main-image">
@@ -39,18 +39,18 @@ const PropertyDetail: React.FC = () => {
           <div className="pd-stats">
             <div className="pd-stat">
               <span className="label">PRIJS</span>
-              <span className="value">€ {Number(acf.price).toLocaleString('nl-NL')}</span>
+              <span className="value">€ {Number(acf.price || 0).toLocaleString('nl-NL')}</span>
             </div>
             <div className="pd-stat">
               <span className="label">SLAAPKAMERS</span>
-              <span className="value">{acf.bedrooms}</span>
+              <span className="value">{acf.bedrooms || 0}</span>
             </div>
             <div className="pd-stat">
               <span className="label">OPPERVLAKTE</span>
-              <span className="value">{acf.square_footage} m²</span>
+              <span className="value">{acf.square_footage || 0} m²</span>
             </div>
           </div>
-          <div className="pd-description" style={{marginTop: '20px', textAlign: 'left'}}>
+          <div className="pd-description" style={{marginTop: '30px', textAlign: 'left'}}>
             <p>{acf.description}</p>
           </div>
         </div>
