@@ -38,36 +38,32 @@ function App() {
   }, []);
 
   const filtered = properties.filter((p) => {
-    // Veiligheid: als ACF ontbreekt, skip deze woning om crashes te voorkomen
+    // VEILIGHEID: Sla woningen zonder data over om crashes te voorkomen
     if (!p || !p.acf) return false;
     const acf = p.acf;
 
     // Zoekmatch
     if (filters.search) {
       const title = p.title?.rendered?.toLowerCase() || "";
-      const searchLower = filters.search.toLowerCase();
-      if (!title.includes(searchLower)) return false;
+      if (!title.includes(filters.search.toLowerCase())) return false;
     }
 
-    // Prijsmatch
+    // Prijsmatch (Forceer naar getal)
     const price = Number(acf.price) || 0;
     if (filters.minPrice !== '' && price < Number(filters.minPrice)) return false;
     if (filters.maxPrice !== '' && price > Number(filters.maxPrice)) return false;
 
-    // Slaapkamers
-    if (filters.minBedrooms !== '' && (Number(acf.bedrooms) || 0) < Number(filters.minBedrooms)) return false;
-
-    // Woningtype
+    // Type match
     if (selectedType) {
       const typeMatch = acf.type === selectedType;
       const termMatch = p._embedded?.['wp:term']?.[0]?.some((t: any) => t.slug === selectedType);
       if (!typeMatch && !termMatch) return false;
     }
 
-    return true;
+    return true; 
   });
 
-  if (isLoading) return <div className="loading">Data wordt opgehaald...</div>;
+  if (isLoading) return <div className="loading">Data laden...</div>;
 
   return (
     <div className="container">
