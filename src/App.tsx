@@ -11,10 +11,12 @@ interface Property {
     bedrooms: number | string;
     bathrooms: number | string;
     square_footage: number | string;
-    garden: boolean | string; 
-    pool: boolean | string;
-    garage: boolean | string;
-    driveway: boolean | string;
+    garden: boolean; 
+    pool: boolean;
+    garage: boolean;
+    driveway: boolean;
+    description: string;
+    construction_year: number | string;
   };
   _embedded?: {
     'wp:featuredmedia'?: [{ source_url: string }];
@@ -53,20 +55,26 @@ function App() {
       setIsLoading(false);
     })
     .catch(err => {
-      console.error("API Error:", err);
+      console.error("API Fout:", err);
       setIsLoading(false);
     });
   }, []);
+
+  const handleTypeFilter = (slug: string | null) => {
+    setCurrentFilters(prev => ({ 
+      ...prev, 
+      selectedTypeSlug: slug === prev.selectedTypeSlug ? null : slug 
+    }));
+  };
 
   const filteredProperties = properties.filter(property => {
     const f = currentFilters;
     const acf = property.acf || {};
     
-    // Helper om boolean waarden uit je JSON te checken
     const checkBool = (val: any, filterVal: string) => {
       if (filterVal === '') return true;
-      const boolVal = (val === true || val === '1' || val === 1);
-      return filterVal === 'yes' ? boolVal : !boolVal;
+      const isTrue = val === true || val === '1' || val === 1;
+      return filterVal === 'yes' ? isTrue : !isTrue;
     };
 
     if (f.search && !property.title.rendered.toLowerCase().includes(f.search.toLowerCase())) return false;
@@ -90,19 +98,27 @@ function App() {
     return true;
   });
 
-  if (isLoading) return <div className="loading">Laden...</div>;
+  if (isLoading) return <div className="loading">Laden van vastgoed data...</div>;
 
   return (
     <div className="container">
       <h1>Vastgoed Dashboard</h1>
       <FilterForm onFilterChange={(f) => setCurrentFilters(f)} />
       
+      <div className="type-filter-container">
+        <h3>Type woning:</h3>
+        <div className="type-buttons">
+          <button onClick={() => handleTypeFilter(null)} className={currentFilters.selectedTypeSlug === null ? 'active' : ''}>Alle</button>
+          {propertyTypes.map(type => (
+            <button key={type.id} onClick={() => handleTypeFilter(type.slug)} className={currentFilters.selectedTypeSlug === type.slug ? 'active' : ''}>
+              {type.name}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div className="property-card-grid">
-        {filteredProperties.length > 0 ? (
-          filteredProperties.map(p => <PropertyCard key={p.id} property={p} />)
-        ) : (
-          <p>Geen woningen gevonden met deze filters.</p>
-        )}
+        {filteredProperties.map(p => <PropertyCard key={p.id} property={p} />)}
       </div>
     </div>
   );

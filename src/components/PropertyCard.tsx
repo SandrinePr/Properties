@@ -1,61 +1,28 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-interface Property {
-    id: number;
-    title: { rendered: string };
-    acf: {
-        price: string;
-        bedrooms: string;
-        bathrooms: string;
-        square_footage: string;
-    };
-    _embedded?: {
-        'wp:featuredmedia'?: [{ source_url: string }];
-    };
-}
+const PropertyCard = ({ property }: { property: any }) => {
+  const acf = property.acf || {};
+  const featuredImage = property._embedded?.['wp:featuredmedia']?.[0]?.source_url;
 
-interface PropertyCardProps {
-    property: Property;
-}
-
-const formatPrice = (priceString: string) => {
-    const price = parseInt(priceString, 10);
-    return isNaN(price) ? "Prijs op aanvraag" : price.toLocaleString('nl-NL', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0 });
-};
-
-const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
-    const { title, acf, _embedded } = property;
-    const featuredImage = _embedded?.['wp:featuredmedia']?.[0]?.source_url;
-
-    return (
-        <div className="property-card">
-            {featuredImage && (
-                <img 
-                    src={featuredImage} 
-                    alt={title.rendered} 
-                />
-            )}
-
-            <div className="card-content">
-                <Link to={`/property/${property.id}`}>
-                    <h3>{title.rendered}</h3>       
-                </Link>
-
-                <span className="price">{formatPrice(acf.price)}</span>
-
-                <div className="specs">
-                    <span>🛏️ {acf.bedrooms}</span>
-                    <span>🚿 {acf.bathrooms}</span>
-                    <span>📏 {acf.square_footage} m²</span>
-                </div>
-
-                <Link to={`/property/${property.id}`}>
-                    <button>Bekijk Details</button>
-                </Link>
-            </div>
+  return (
+    <div className="property-card">
+      <Link to={`/property/${property.id}`}>
+        <div className="image-container">
+          {featuredImage ? <img src={featuredImage} alt={property.title.rendered} /> : <div className="placeholder">Geen foto</div>}
         </div>
-    );
+        <div className="card-content">
+          <h3>{property.title.rendered}</h3>
+          <p className="price">
+            {acf.price ? `€ ${Number(acf.price).toLocaleString('nl-NL')}` : 'Prijs op aanvraag'}
+          </p>
+          <div className="stats">
+            <span>{acf.bedrooms || 0} Slaapkamers</span> • <span>{acf.square_footage || 0} m²</span>
+          </div>
+        </div>
+      </Link>
+    </div>
+  );
 };
 
 export default PropertyCard;
