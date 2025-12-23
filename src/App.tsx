@@ -27,32 +27,52 @@ function App() {
       setPropertyTypes(Array.isArray(typeData) ? typeData : []);
       setIsLoading(false);
     })
-    .catch(() => setIsLoading(false));
+    .catch((err) => {
+      console.error("Fetch error:", err);
+      setIsLoading(false);
+    });
   }, []);
 
   const filteredProperties = properties.filter(p => {
+    // VEILIGHEID: Als p of p.acf niet bestaat, negeer deze woning zodat de site niet crasht
+    if (!p || !p.acf) return false;
+
     const f = currentFilters;
-    const acf = p.acf || {};
+    const acf = p.acf;
 
+    // Filter op titel
     if (f.search && !p.title.rendered.toLowerCase().includes(f.search.toLowerCase())) return false;
-    if (f.minPrice !== '' && (Number(acf.price) || 0) < Number(f.minPrice)) return false;
-    if (f.maxPrice !== '' && (Number(acf.price) || 0) > Number(f.maxPrice)) return false;
-    if (f.minBedrooms !== '' && (Number(acf.bedrooms) || 0) < Number(f.minBedrooms)) return false;
+    
+    // Filter op prijs
+    const price = Number(acf.price) || 0;
+    if (f.minPrice !== '' && price < Number(f.minPrice)) return false;
+    if (f.maxPrice !== '' && price > Number(f.maxPrice)) return false;
 
+    // Filter op slaapkamers
+    const bedrooms = Number(acf.bedrooms) || 0;
+    if (f.minBedrooms !== '' && bedrooms < Number(f.minBedrooms)) return false;
+
+    // Filter op type (Taxonomie)
     if (f.selectedTypeSlug) {
       const terms = p._embedded?.['wp:term']?.[0] || [];
       if (!terms.some((t: any) => t.slug === f.selectedTypeSlug)) return false;
     }
 
-    // Nieuwe booleans check
-    const check = (val: any, filter: string) => filter === '' ? true : (filter === 'yes' ? !!val : !val);
-    if (!check(acf.garden, f.hasGarden)) return false;
-    if (!check(acf.pool, f.hasPool)) return false;
+    // Filter op extra's (Boolean checks)
+    const checkExtra = (hasFeature: any, filterValue: string) => {
+      if (filterValue === '') return true;
+      return filterValue === 'yes' ? hasFeature === true : hasFeature === false;
+    };
+
+    if (!checkExtra(acf.garden, f.hasGarden)) return false;
+    if (!checkExtra(acf.pool, f.hasPool)) return false;
+    if (!checkExtra(acf.garage, f.hasGarage)) return false;
+    if (!checkExtra(acf.driveway, f.hasDriveway)) return false;
 
     return true;
   });
 
-  if (isLoading) return <div className="loading">Laden...</div>;
+  if (isLoading) return <div className="loading">Data ophalen uit WordPress...</div>;
 
   return (
     <div className="container">
@@ -61,19 +81,32 @@ function App() {
       
       <div className="type-filter-container">
         <div className="type-buttons">
-          <button onClick={() => setCurrentFilters({...currentFilters, selectedTypeSlug: null})} className={!currentFilters.selectedTypeSlug ? 'active' : ''}>Alle Types</button>
+          <button 
+            onClick={() => setCurrentFilters({...currentFilters, selectedTypeSlug: null})} 
+            className={!currentFilters.selectedTypeSlug ? 'active' : ''}
+          >
+            Alle Types
+          </button>
           {propertyTypes.map(type => (
-            <button key={type.id} onClick={() => setCurrentFilters({...currentFilters, selectedTypeSlug: type.slug})} className={currentFilters.selectedTypeSlug === type.slug ? 'active' : ''}>
+            <button 
+              key={type.id} 
+              onClick={() => setCurrentFilters({...currentFilters, selectedTypeSlug: type.slug})} 
+              className={currentFilters.selectedTypeSlug === type.slug ? 'active' : ''}
+            >
               {type.name}
             </button>
           ))}
         </div>
       </div>
 
-      <div className="results-count"><strong>{filteredProperties.length}</strong> resultaten gevonden</div>
+      <div className="results-count">
+        <strong>{filteredProperties.length}</strong> resultaten gevonden
+      </div>
 
       <div className="property-card-grid">
-        {filteredProperties.map(p => <PropertyCard key={p.id} property={p} />)}
+        {filteredProperties.map(p => (
+          <PropertyCard key={p.id} property={p} />
+        ))}
       </div>
     </div>
   );
