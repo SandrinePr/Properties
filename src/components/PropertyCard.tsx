@@ -29,8 +29,9 @@ const PropertyCard = ({ property }: { property: any }) => {
                 </Link>
                 <p className="price">{displayPrice}</p>
                 <div className="specs">
-                    <span>🛏️ {acf.bedrooms ?? '-'}</span>
-                    <span>📏 {acf.square_footage ?? '-'} m²</span>
+                    <span title="Slaapkamers">🛏️ {acf.bedrooms ?? '-'}</span>
+                    <span title="Badkamers">🛁 {acf.bathrooms ?? '-'}</span>
+                    <span title="Oppervlakte">📏 {acf.square_footage ?? '-'} m²</span>
                 </div>
                 <Link to={`/property/${property.id}`}>
                     <button>Bekijk Details</button>
