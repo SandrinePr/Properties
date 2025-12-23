@@ -28,10 +28,26 @@ function App() {
     const headers = new Headers();
     headers.set('Authorization', 'Basic ' + btoa('staple:temporary'));
 
-    fetch(`${API_URL}/wp-json/wp/v2/property?_embed&per_page=100`, { headers })
+    // Gebruik de ACF to REST API endpoint
+    fetch(`${API_URL}/wp-json/acf/v3/property`, { headers })
       .then(res => res.json())
       .then(data => {
-        setProperties(Array.isArray(data) ? data : []);
+        // data is een object met een 'acf' property per property
+        if (data && Array.isArray(data)) {
+          setProperties(data);
+        } else if (data && Array.isArray(data?.acf)) {
+          setProperties(data.acf);
+        } else if (data && Array.isArray(data?.data)) {
+          setProperties(data.data);
+        } else if (data && data.length) {
+          setProperties(data);
+        } else if (data && data.length === 0) {
+          setProperties([]);
+        } else if (data && data?.posts) {
+          setProperties(data.posts);
+        } else {
+          setProperties([]);
+        }
         setIsLoading(false);
       })
       .catch(() => setIsLoading(false));
