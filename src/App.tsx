@@ -7,15 +7,14 @@ interface Property {
   id: number;
   title: { rendered: string };
   acf: {
-    price: number;
-    bedrooms: number;
-    bathrooms: number;
-    square_footage: number;
+    price: number | string;
+    bedrooms: number | string;
+    bathrooms: number | string;
+    square_footage: number | string;
     garden: boolean; 
     pool: boolean;
     garage: boolean;
     driveway: boolean;
-    property_gallery: number[]; // Voor de meerdere afbeeldingen
   };
   _embedded?: {
     'wp:featuredmedia'?: [{ source_url: string }];
@@ -23,11 +22,7 @@ interface Property {
   };
 }
 
-interface TaxonomyTerm {
-  id: number;
-  name: string;
-  slug: string;
-}
+interface TaxonomyTerm { id: number; name: string; slug: string; }
 
 function App() {
   const [properties, setProperties] = useState<Property[]>([]);
@@ -40,7 +35,7 @@ function App() {
   });
 
   useEffect(() => {
-    const API_URL = import.meta.env.VITE_API_URL || 'https://dev-property-dashboard.pantheonsite.io';
+    const API_URL = 'https://dev-property-dashboard.pantheonsite.io';
     const headers = new Headers();
     headers.set('Authorization', 'Basic ' + btoa('staple:temporary'));
 
@@ -56,20 +51,15 @@ function App() {
     .catch(() => setIsLoading(false));
   }, []);
 
-  const handleTypeFilter = (slug: string | null) => {
-    setCurrentFilters(prev => ({ ...prev, selectedTypeSlug: slug === prev.selectedTypeSlug ? null : slug }));
-  };
-
   const filteredProperties = properties.filter(p => {
     const f = currentFilters;
     const acf = p.acf || {};
     const checkBool = (val: any, filter: string) => filter === '' ? true : (filter === 'yes' ? !!val : !val);
 
     if (f.search && !p.title.rendered.toLowerCase().includes(f.search.toLowerCase())) return false;
-    if (f.minPrice !== '' && (acf.price || 0) < Number(f.minPrice)) return false;
-    if (f.maxPrice !== '' && (acf.price || 0) > Number(f.maxPrice)) return false;
-    if (f.minBedrooms !== '' && (acf.bedrooms || 0) < Number(f.minBedrooms)) return false;
-    if (f.minBathrooms !== '' && (acf.bathrooms || 0) < Number(f.minBathrooms)) return false;
+    if (f.minPrice !== '' && (Number(acf.price) || 0) < Number(f.minPrice)) return false;
+    if (f.maxPrice !== '' && (Number(acf.price) || 0) > Number(f.maxPrice)) return false;
+    if (f.minBedrooms !== '' && (Number(acf.bedrooms) || 0) < Number(f.minBedrooms)) return false;
     if (f.selectedTypeSlug && !p._embedded?.['wp:term']?.[0]?.some(t => t.slug === f.selectedTypeSlug)) return false;
     
     if (!checkBool(acf.garden, f.hasGarden)) return false;
@@ -88,8 +78,9 @@ function App() {
       <FilterForm onFilterChange={setCurrentFilters} />
       
       <div className="type-filter">
+        <button onClick={() => setCurrentFilters({...currentFilters, selectedTypeSlug: null})} className={!currentFilters.selectedTypeSlug ? 'active' : ''}>Alle</button>
         {propertyTypes.map(type => (
-          <button key={type.id} onClick={() => handleTypeFilter(type.slug)} className={currentFilters.selectedTypeSlug === type.slug ? 'active' : ''}>
+          <button key={type.id} onClick={() => setCurrentFilters({...currentFilters, selectedTypeSlug: type.slug})} className={currentFilters.selectedTypeSlug === type.slug ? 'active' : ''}>
             {type.name}
           </button>
         ))}

@@ -1,79 +1,38 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 export interface Filters {
-  search: string;
-  minPrice: number | '';
-  maxPrice: number | '';
-  minBedrooms: number | '';
-  minBathrooms: number | '';
-  selectedTypeSlug: string | null;
-  hasGarden: 'yes' | 'no' | '';
-  hasPool: 'yes' | 'no' | '';
-  hasGarage: 'yes' | 'no' | '';
-  hasDriveway: 'yes' | 'no' | '';
+  search: string; minPrice: string; maxPrice: string; minBedrooms: string;
+  minBathrooms: string; selectedTypeSlug: string | null;
+  hasGarden: string; hasPool: string; hasGarage: string; hasDriveway: string;
 }
 
-interface FilterFormProps {
-  onFilterChange: (filters: Filters) => void;
-}
-
-const FilterForm: React.FC<FilterFormProps> = ({ onFilterChange }) => {
-  const [currentFilters, setCurrentFilters] = useState<Filters>({
+const FilterForm = ({ onFilterChange }: { onFilterChange: (f: Filters) => void }) => {
+  const [f, setF] = React.useState<Filters>({
     search: '', minPrice: '', maxPrice: '', minBedrooms: '', minBathrooms: '',
     selectedTypeSlug: null, hasGarden: '', hasPool: '', hasGarage: '', hasDriveway: '',
   });
-  const [showAdvanced, setShowAdvanced] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    let newFilters = { ...currentFilters, [name]: value };
-    
-    if (['minPrice', 'maxPrice', 'minBedrooms', 'minBathrooms'].includes(name)) {
-      const val = value !== '' ? parseInt(value, 10) : '';
-      if (typeof val === 'number' && val < 0) return;
-      newFilters = { ...currentFilters, [name]: val };
-    }
-
-    setCurrentFilters(newFilters as Filters);
-    onFilterChange(newFilters as Filters);
+  const update = (e: any) => {
+    const next = { ...f, [e.target.name]: e.target.value };
+    setF(next);
+    onFilterChange(next);
   };
 
   return (
-    <div className="filter-box">
-      <h2>Zoek & Filter</h2>
-      
-      <div className="filter-grid">
-        <div className="input-group">
-          <label>Locatie</label>
-          <input name="search" type="text" value={currentFilters.search} onChange={handleChange} placeholder="Straat of stad..." />
-        </div>
-        <div className="input-group">
-          <label>Min. Prijs</label>
-          <input name="minPrice" type="number" value={currentFilters.minPrice} onChange={handleChange} placeholder="€ 0" />
-        </div>
-        <div className="input-group">
-          <label>Max. Prijs</label>
-          <input name="maxPrice" type="number" value={currentFilters.maxPrice} onChange={handleChange} placeholder="€ Geen limiet" />
-        </div>
-      </div>
-
-      <div className="button-group">
-        <button type="button" className="btn-secondary" onClick={() => setShowAdvanced(!showAdvanced)}>
-          {showAdvanced ? 'Minder filters' : 'Meer filters'}
-        </button>
-
-        {showAdvanced && (
-          <div className="advanced-grid">
-             <input name="minBedrooms" type="number" value={currentFilters.minBedrooms} onChange={handleChange} placeholder="Slaapkamers" />
-             <select name="hasGarden" value={currentFilters.hasGarden} onChange={handleChange}>
-                <option value="">Tuin (Alle)</option>
-                <option value="yes">Ja</option>
-                <option value="no">Nee</option>
-             </select>
-          </div>
-        )}
-
-        <button className="btn-primary" onClick={() => window.location.reload()}>Reset Filters</button>
+    <div className="filter-form">
+      <input name="search" placeholder="Zoek op naam..." onChange={update} />
+      <div className="filter-row">
+        <input name="minPrice" placeholder="Min €" type="number" onChange={update} />
+        <input name="maxPrice" placeholder="Max €" type="number" onChange={update} />
+        <select name="hasGarden" onChange={update}>
+          <option value="">Tuin?</option>
+          <option value="yes">Ja</option>
+          <option value="no">Nee</option>
+        </select>
+        <select name="hasPool" onChange={update}>
+          <option value="">Zwembad?</option>
+          <option value="yes">Ja</option>
+        </select>
       </div>
     </div>
   );
