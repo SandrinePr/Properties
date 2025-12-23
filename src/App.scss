@@ -21,361 +21,234 @@ $black: #000000;
 body {
   background-color: $color-light;
   color: $color-dark;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  justify-content: center;
+  font-family: 'Inter', sans-serif;
   line-height: 1.6;
 }
 
-// ==========================================
-// 3. LAYOUT CONTAINERS
-// ==========================================
 .container {
-  width: 100%;
   max-width: 1200px;
+  margin: 0 auto;
   padding: 60px 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center; 
   text-align: center;
-  background-color: transparent;
 }
 
 h1 {
   font-size: 2.8rem;
-  color: $color-dark;
   margin-bottom: 50px;
-  text-transform: uppercase;
   font-weight: 900;
-  letter-spacing: -1px;
-}
-
-.loading {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: $color-medium;
+  text-transform: uppercase;
 }
 
 // ==========================================
-// 4. FILTER FORMULIER (DE WITTE BOX)
+// 3. FILTER FORMULIER & TYPE BUTTONS
 // ==========================================
 .filter-box {
-  background-color: $white !important; // HIER WORDT HIJ WIT
+  background: $white;
   padding: 40px;
-  border: 1px solid $color-sand;
   border-radius: 20px;
   margin-bottom: 40px;
-  width: 100%;
-  max-width: 1000px;
-  box-sizing: border-box;
   box-shadow: 0 10px 30px rgba(0,0,0,0.05);
   text-align: left;
 
-  h2 {
-    color: $color-dark;
-    margin-bottom: 30px;
-    font-weight: 900;
-    font-size: 1.8rem;
-    text-align: center;
-  }
-
-  // De grid voor de primaire inputs
   .filter-grid {
     display: grid;
     grid-template-columns: 2fr 1fr 1fr;
     gap: 20px;
-    margin-bottom: 25px;
+    margin-bottom: 20px;
   }
 
-  // Styling voor elk input blok
   .input-group {
     display: flex;
     flex-direction: column;
     gap: 8px;
-  }
-
-  label {
-    display: block;
-    font-size: 0.8rem;
-    font-weight: 800;
-    color: $color-medium;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  input, select {
-    width: 100%;
-    padding: 14px;
-    background-color: $white;
-    border: 1px solid #ddd;
-    border-radius: 10px;
-    color: $color-dark;
-    font-size: 1rem;
-    transition: all 0.2s ease;
-
-    &::placeholder {
-      color: $color-muted;
-      opacity: 0.6;
-    }
-
-    &:focus {
-      outline: none;
-      border-color: $color-medium;
-      box-shadow: 0 0 0 3px rgba(74, 78, 105, 0.1);
-    }
-  }
-
-  // De knoppensectie onderaan het filter
-  .button-group {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 15px;
-    margin-top: 10px;
-
-    .btn-secondary {
-      background-color: transparent;
-      color: $color-medium;
-      border: 1px solid $color-muted;
-      padding: 10px 20px;
-      border-radius: 8px;
-      font-weight: 600;
-      cursor: pointer;
-      font-size: 0.9rem;
-      transition: all 0.2s;
-
-      &:hover {
-        background-color: $color-light;
-        border-color: $color-dark;
-      }
-    }
-
-    .btn-primary {
-      background-color: #1a1a1a;
-      color: $white;
-      border: none;
-      padding: 16px 50px;
-      border-radius: 12px;
-      font-weight: 800;
-      cursor: pointer;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      transition: transform 0.2s, background-color 0.2s;
-
-      &:hover {
-        background-color: $black;
-      }
-
-      &:active {
-        transform: translateY(0);
-      }
-    }
+    label { font-size: 0.8rem; font-weight: 800; color: $color-medium; text-transform: uppercase; }
+    input, select { padding: 14px; border: 1px solid #ddd; border-radius: 10px; font-size: 1rem; }
   }
 }
 
-// ==========================================
-// 5. TYPE FILTERS (CATEGORIEËN)
-// ==========================================
-.type-filter-container {
-  width: 100%;
-  max-width: 1000px;
-  text-align: center;
+.type-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
   margin-bottom: 50px;
-
-  h3 {
-    font-size: 1rem;
-    color: $color-medium;
-    margin-bottom: 20px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
-
-  .type-buttons {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    justify-content: center;
-
-    button {
-      background-color: $white;
-      border: 2px solid $color-dark;
-      color: $color-dark;
-      padding: 12px 28px;
-      border-radius: 50px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.2s ease;
-
-      &.active {
-        background-color: $color-dark;
-        color: $white;
-      }
-
-      &:hover:not(.active) {
-        background-color: $color-dark;
-        color: $white;
-      }
-    }
+  button {
+    padding: 12px 28px;
+    border-radius: 50px;
+    border: 2px solid $color-dark;
+    background: $white;
+    font-weight: 700;
+    cursor: pointer;
+    &.active { background: $color-dark; color: $white; }
   }
 }
 
 // ==========================================
-// 6. RESULTATEN OVERZICHT
-// ==========================================
-.results-count {
-  width: 100%;
-  max-width: 1100px;
-  margin-bottom: 30px;
-  font-size: 1.2rem;
-  color: $color-medium;
-  border-left: 5px solid $color-sand;
-  padding: 10px 20px;
-  text-align: left;
-  background: rgba(255, 255, 255, 0.3);
-  border-radius: 0 10px 10px 0;
-
-  strong {
-    color: $color-dark;
-    font-size: 1.4rem;
-  }
-}
-
-// ==========================================
-// 7. PROPERTY GRID (MAX 2 NAAST ELKAAR)
+// 4. PROPERTY CARDS (HOMEPAGE)
 // ==========================================
 .property-card-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr); 
+  grid-template-columns: repeat(2, 1fr);
   gap: 40px;
-  width: 100%;
-  max-width: 1100px;
-  margin-bottom: 100px;
 }
 
-// ==========================================
-// 8. PROPERTY CARD STYLING (GEFORCEERD WIT)
-// ==========================================
 .property-card {
-  background-color: $white !important; 
-  border: 1px solid rgba(0,0,0,0.08);
+  background: $white;
   border-radius: 24px;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden; 
-  width: 100%;
+  overflow: hidden;
   box-shadow: 0 10px 20px rgba(0,0,0,0.04);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-
-  &:hover {
-    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-  }
-
-  img {
-    width: 100%;
-    height: 280px;
-    object-fit: cover;
-    display: block;
-    background-color: #f0f0f0;
-  }
-
+  img { width: 100%; height: 280px; object-fit: cover; }
   .card-content {
-    background-color: $white !important; 
     padding: 30px;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    box-sizing: border-box;
-
-    h3 {
-      margin: 0 0 15px 0;
-      font-size: 1.6rem;
-      color: $color-dark;
-      font-weight: 800;
-    }
-
-    .price {
-      font-size: 1.8rem;
-      font-weight: 900;
-      color: $black;
-      margin-bottom: 25px;
-      display: block;
-    }
-
+    .price { font-size: 1.8rem; font-weight: 900; display: block; margin: 15px 0; }
     .specs {
-      width: 100%;
       display: flex;
       justify-content: space-around;
       padding: 20px 0;
       border-top: 1px solid $color-light;
-      border-bottom: 1px solid $color-light;
       color: $color-medium;
       font-weight: 700;
-      background-color: $white !important;
-      
-      span {
-        display: flex;
-        align-items: center;
-        gap: 5px;
-      }
     }
   }
-
   button {
-    margin: 25px 0 5px 0;
-    padding: 14px 35px;
-    background-color: $color-dark;
+    margin-top: 20px;
+    padding: 12px 30px;
+    background: $color-dark;
     color: $white;
-    border: none;
-    border-radius: 12px;
-    cursor: pointer;
+    border-radius: 10px;
     font-weight: 800;
-    text-transform: uppercase;
-    font-size: 0.85rem;
-    transition: background 0.2s;
-
-    &:hover {
-      background-color: $color-medium;
-    }
+    cursor: pointer;
   }
 }
 
 // ==========================================
-// 9. RESPONSIVE DESIGN (BREAKPOINTS)
+// 5. PROPERTY DETAIL (DE VETTE GRID & OVERLAY)
 // ==========================================
+.pd-root {
+  background: $color-light;
+  min-height: 100vh;
+  padding: 40px 20px;
+}
+
+.pd-container {
+  max-width: 1140px;
+  margin: 0 auto;
+}
+
+.pd-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 25px;
+  color: $color-dark;
+}
+
+// DE GRID FIX
+.pd-grid-wrapper {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 12px;
+  min-height: 480px;
+  margin-bottom: 30px;
+
+  .pd-grid-main {
+    cursor: pointer;
+    border-radius: 12px;
+    overflow: hidden;
+    img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  }
+
+  .pd-grid-side {
+    display: grid;
+    grid-template-rows: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .pd-side-item {
+    position: relative;
+    cursor: pointer;
+    border-radius: 12px;
+    overflow: hidden;
+    img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .pd-placeholder { background: #ddd; height: 100%; }
+  }
+}
+
+// DE FOTO BADGE (+3 FOTO'S)
+.pd-image-badge {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $white;
+  font-weight: 700;
+  font-size: 1.5rem;
+}
+
+// DE OVERLAY / LIGHTBOX
+.pd-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.95);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .pd-close {
+    position: absolute;
+    top: 30px;
+    right: 30px;
+    background: $white;
+    padding: 10px 25px;
+    border-radius: 40px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  .pd-arrow {
+    background: none;
+    border: none;
+    color: $white;
+    font-size: 4rem;
+    cursor: pointer;
+    padding: 40px;
+    position: absolute;
+    &.prev { left: 20px; }
+    &.next { right: 20px; }
+  }
+
+  .pd-view-box {
+    text-align: center;
+    img { max-width: 80vw; max-height: 80vh; border-radius: 8px; }
+    .pd-counter { color: $white; margin-top: 15px; font-weight: bold; }
+  }
+}
+
+// INFO KAART ONDER DE FOTO'S
+.pd-info-card {
+  background: $white;
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+  text-align: left;
+
+  .pd-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    border-top: 1px solid #f0f0f0;
+    padding-top: 25px;
+    margin-top: 20px;
+  }
+
+  .pd-stat {
+    .label { display: block; font-size: 0.75rem; color: $color-muted; margin-bottom: 5px; }
+    .value { font-size: 1.2rem; font-weight: 700; color: $color-dark; }
+  }
+}
+
 @media (max-width: 900px) {
-  .property-card-grid {
-    grid-template-columns: 1fr;
-    gap: 30px;
-  }
-
-  .filter-box .filter-grid {
-    grid-template-columns: 1fr;
-    gap: 15px;
-  }
-
-  h1 {
-    font-size: 2rem;
-  }
-}
-
-@media (max-width: 600px) {
-  .container {
-    padding: 30px 15px;
-  }
-
-  .filter-box {
-    padding: 25px;
-  }
-
-  .type-buttons button {
-    padding: 10px 20px;
-    font-size: 0.9rem;
-  }
+  .property-card-grid, .pd-stats { grid-template-columns: 1fr; }
+  .pd-grid-wrapper { grid-template-columns: 1fr; }
 }
