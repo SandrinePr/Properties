@@ -1,6 +1,7 @@
 <?php
-// CORS headers for Render frontend
+// CORS headers voor Render frontend
 add_action('init', function() {
+    // Let op: Controleer of dit exact je Render URL is
     header("Access-Control-Allow-Origin: https://properties-uny6.onrender.com");
     header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
     header("Access-Control-Allow-Headers: Authorization, Content-Type");
