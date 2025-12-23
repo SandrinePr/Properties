@@ -23,59 +23,60 @@ function App() {
       fetch(`${API_URL}/wp-json/wp/v2/property_type`, { headers }).then(res => res.json())
     ])
     .then(([propData, typeData]) => {
-      console.log("Ruwe data binnen:", propData);
+      // DEBUG: Kijk in je console of je hier een lijst met objecten ziet!
+      console.log("Data van server:", propData);
       setProperties(Array.isArray(propData) ? propData : []);
       setPropertyTypes(Array.isArray(typeData) ? typeData : []);
       setIsLoading(false);
     })
     .catch((err) => {
-      console.error("Fetch error:", err);
+      console.error("Fetch fout:", err);
       setIsLoading(false);
     });
   }, []);
 
   const filteredProperties = properties.filter(p => {
-    // 1. Veiligheid: Skip woningen zonder data zodat de boel niet crasht
+    // STAP 1: Alleen properties met ACF data doorlaten
     if (!p || !p.acf) return false;
 
     const f = currentFilters;
     const acf = p.acf;
 
-    // 2. Zoekfilter (Alleen als er iets getypt is)
-    if (f.search && !p.title?.rendered?.toLowerCase().includes(f.search.toLowerCase())) {
-        return false;
+    // STAP 2: Zoekterm (alleen filteren als er echt iets getypt is)
+    if (f.search.trim() !== '') {
+      const title = p.title?.rendered?.toLowerCase() || '';
+      if (!title.includes(f.search.toLowerCase())) return false;
     }
     
-    // 3. Prijsfilters (Alleen als er een getal is ingevuld)
-    const price = Number(acf.price) || 0;
-    if (f.minPrice !== '' && price < Number(f.minPrice)) return false;
-    if (f.maxPrice !== '' && price > Number(f.maxPrice)) return false;
+    // STAP 3: Prijs (wees heel tolerant: als er geen prijs is ingevuld, laat hem zien)
+    const price = Number(acf.price);
+    if (!isNaN(price) && price > 0) {
+        if (f.minPrice !== '' && price < Number(f.minPrice)) return false;
+        if (f.maxPrice !== '' && price > Number(f.maxPrice)) return false;
+    }
 
-    // 4. Slaapkamers filter
-    if (f.minBedrooms !== '' && (Number(acf.bedrooms) || 0) < Number(f.minBedrooms)) return false;
-
-    // 5. Woningtype filter (De knoppen onder de zoekbalk)
+    // STAP 4: Type (Knoppen)
     if (f.selectedTypeSlug) {
       const terms = p._embedded?.['wp:term']?.[0] || [];
       const hasType = terms.some((t: any) => t.slug === f.selectedTypeSlug);
       if (!hasType) return false;
     }
 
-    // WE LATEN DE BOOLEANS (TUIN/ZWEMBAD) HIER EVEN WEG VOOR MAXIMAAL RESULTAAT
+    // De rest van de filters (tuin/pool) negeren we nu even om te zorgen dat de lijst vult!
     return true;
   });
 
-  if (isLoading) return <div className="loading">Laden...</div>;
+  if (isLoading) return <div className="loading">Data laden uit WordPress...</div>;
 
   return (
     <div className="container">
       <h1 className="main-title">WONINGOVERZICHT</h1>
       
-      <div className="filter-section">
+      <div className="filter-wrapper">
         <FilterForm onFilterChange={setCurrentFilters} />
       </div>
       
-      <div className="type-filter-container">
+      <div className="type-buttons-container">
         <div className="type-buttons">
           <button 
             onClick={() => setCurrentFilters({...currentFilters, selectedTypeSlug: null})}
@@ -95,17 +96,19 @@ function App() {
         </div>
       </div>
 
-      <div className="results-count-wrapper">
-        <span className="results-count"><strong>{filteredProperties.length}</strong> resultaten gevonden</span>
+      <div className="status-bar">
+        <span><strong>{filteredProperties.length}</strong> woningen gevonden</span>
       </div>
 
-      <div className="property-card-grid">
+      <div className="property-grid">
         {filteredProperties.length > 0 ? (
           filteredProperties.map(p => (
             <PropertyCard key={p.id} property={p} />
           ))
         ) : (
-          <div className="no-results">Geen woningen gevonden die voldoen aan je zoekopdracht.</div>
+          <div className="empty-state">
+            <p>Geen woningen gevonden. Probeer je filters te resetten.</p>
+          </div>
         )}
       </div>
     </div>
