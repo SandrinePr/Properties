@@ -5,10 +5,11 @@ import './PropertyDetail.scss';
 const PropertyDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [property, setProperty] = useState<any>(null);
-  const [photoIndex, setPhotoIndex] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchProperty = async () => {
+      // Gebruik de URL die je in Render hebt ingesteld
       const API_URL = import.meta.env.VITE_API_URL || 'https://dev-property-dashboard.pantheonsite.io';
       const headers = new Headers();
       headers.set('Authorization', 'Basic ' + btoa('staple:temporary'));
@@ -17,93 +18,67 @@ const PropertyDetail: React.FC = () => {
         const res = await fetch(`${API_URL}/wp-json/wp/v2/property/${id}?_embed`, { headers });
         const data = await res.json();
         setProperty(data);
-      } catch (err) { 
-        console.error("API Error:", err); 
+      } catch (err) {
+        console.error("Er ging iets mis met het ophalen van de data:", err);
+      } finally {
+        setLoading(false);
       }
     };
+
     fetchProperty();
   }, [id]);
 
-  if (!property) return <div className="pd-loading">Gegevens ophalen...</div>;
+  if (loading) return <div className="pd-loading">Laden...</div>;
+  if (!property) return <div className="pd-error">Woning niet gevonden.</div>;
 
-  // VEILIGHEIDS-LOGICA: We controleren stap voor stap of data bestaat
+  // VEILIGHEIDS-CHECKS (Dit voorkomt het witte scherm)
+  const acf = property.acf || {}; 
+  const title = property.title?.rendered || 'Naamloos object';
   const featuredImage = property._embedded?.['wp:featuredmedia']?.[0]?.source_url || '';
-  const acf = property.acf || {}; // Als acf ontbreekt, gebruiken we een leeg object
-  const gallery = Array.isArray(acf.property_gallery) ? acf.property_gallery : [];
-  
-  const allImages = featuredImage 
-    ? [featuredImage, ...gallery.filter((img: any) => img !== featuredImage)] 
-    : gallery;
-
-  const category = property._embedded?.['wp:term']?.[0]?.[0]?.name || '';
+  const description = property.content?.rendered || '';
 
   return (
     <div className="pd-root">
       <div className="pd-container">
-        <Link to="/" className="pd-back">← Terug</Link>
+        <Link to="/" className="pd-back">← Terug naar overzicht</Link>
         
-        {category && <span className="pd-category-label">{category}</span>}
-        <h1 className="pd-title">{property.title?.rendered || 'Naamloos'}</h1>
+        <h1 className="pd-title">{title}</h1>
 
-        <div className="pd-grid-wrapper">
-          <div className="pd-grid-main" onClick={() => setPhotoIndex(0)}>
-            {allImages[0] ? (
-              <img src={allImages[0]} alt="Main" referrerPolicy="no-referrer" />
-            ) : (
-              <div className="pd-placeholder">Geen foto's</div>
-            )}
-          </div>
-          
-          <div className="pd-grid-side">
-            <div className="pd-side-item" onClick={() => setPhotoIndex(1)}>
-              {allImages[1] && <img src={allImages[1]} alt="Side 1" referrerPolicy="no-referrer" />}
-            </div>
-            
-            <div className="pd-side-item" onClick={() => setPhotoIndex(2)}>
-              {allImages[2] && <img src={allImages[2]} alt="Side 2" referrerPolicy="no-referrer" />}
-              {allImages.length > 3 && (
-                <div className="pd-image-badge">
-                  <span>+{allImages.length - 2} foto's</span>
-                </div>
-              )}
-            </div>
-          </div>
+        <div className="pd-main-image">
+          {featuredImage ? (
+            <img src={featuredImage} alt={title} />
+          ) : (
+            <div className="pd-placeholder">Geen afbeelding beschikbaar</div>
+          )}
         </div>
 
         <div className="pd-info-card">
-          <h2 className="pd-section-title">Kenmerken</h2>
           <div className="pd-stats">
             <div className="pd-stat">
-              <span className="label">PRIJS</span>
+              <span className="label">VRAAGPRIJS</span>
               <span className="value">
-                {/* De definitieve fix voor de error: we kijken nu eerst naar 'acf' */}
-                {acf.price ? `€ ${Number(acf.price).toLocaleString('nl-NL')}` : 'Op aanvraag'}
+                {/* De cruciale fix: we checken of acf.price bestaat */}
+                {acf.price 
+                  ? `€ ${Number(acf.price).toLocaleString('nl-NL')}` 
+                  : 'Prijs op aanvraag'}
               </span>
-            </div>
-            <div className="pd-stat">
-              <span className="label">OPPERVLAKTE</span>
-              <span className="value">{acf.square_footage || '-'} m²</span>
             </div>
             <div className="pd-stat">
               <span className="label">SLAAPKAMERS</span>
               <span className="value">{acf.bedrooms || '-'}</span>
             </div>
             <div className="pd-stat">
-              <span className="label">BOUWJAAR</span>
-              <span className="value">{acf.construction_year || '-'}</span>
+              <span className="label">OPPERVLAKTE</span>
+              <span className="value">{acf.square_footage ? `${acf.square_footage} m²` : '-'}</span>
             </div>
           </div>
         </div>
-      </div>
 
-      {photoIndex !== null && allImages[photoIndex] && (
-        <div className="pd-overlay" onClick={() => setPhotoIndex(null)}>
-          <button className="pd-close">✕ Sluiten</button>
-          <div className="pd-view-box" onClick={(e) => e.stopPropagation()}>
-            <img src={allImages[photoIndex]} alt="Full" />
-          </div>
+        <div className="pd-description">
+          <h2>Omschrijving</h2>
+          <div dangerouslySetInnerHTML={{ __html: description }} />
         </div>
-      )}
+      </div>
     </div>
   );
 };
