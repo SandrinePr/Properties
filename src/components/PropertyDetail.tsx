@@ -17,19 +17,26 @@ const PropertyDetail: React.FC = () => {
         const res = await fetch(`${API_URL}/wp-json/wp/v2/property/${id}?_embed`, { headers });
         const data = await res.json();
         setProperty(data);
-      } catch (err) { console.error("Ophaalfout:", err); }
+      } catch (err) { 
+        console.error("Fout bij ophalen:", err); 
+      }
     };
     fetchProperty();
   }, [id]);
 
-  if (!property) return <div className="pd-loading">Laden...</div>;
+  if (!property) return <div className="pd-loading">Laden van Pantheon...</div>;
 
-  // Veilig afbeeldingen ophalen
+  // Beveiligde data extractie om "undefined" errors te voorkomen
   const featuredImage = property._embedded?.['wp:featuredmedia']?.[0]?.source_url;
-  const gallery = Array.isArray(property.acf?.property_gallery) ? property.acf.property_gallery : [];
-  const allImages = featuredImage ? [featuredImage, ...gallery.filter((img: any) => img !== featuredImage)] : gallery;
+  const rawGallery = property.acf?.property_gallery;
+  const gallery = Array.isArray(rawGallery) ? rawGallery : [];
+  
+  // Maak een lijst van alle beschikbare afbeeldingen
+  const allImages = featuredImage 
+    ? [featuredImage, ...gallery.filter((img: any) => img !== featuredImage)] 
+    : gallery;
 
-  // Veilig categorie ophalen
+  // Haal de categorie veilig op (bijv. Apartment of Villa)
   const category = property._embedded?.['wp:term']?.[0]?.[0]?.name;
 
   return (
@@ -38,20 +45,25 @@ const PropertyDetail: React.FC = () => {
         <Link to="/" className="pd-back">← Terug</Link>
         
         {category && <span className="pd-category-label">{category}</span>}
-        <h1 className="pd-title">{property.title?.rendered || 'Geen titel'}</h1>
+        
+        <h1 className="pd-title">{property.title?.rendered || 'Naamloos object'}</h1>
 
         <div className="pd-grid-wrapper">
           <div className="pd-grid-main" onClick={() => setPhotoIndex(0)}>
-            {allImages[0] ? <img src={allImages[0]} alt="Main" referrerPolicy="no-referrer" /> : <div className="pd-placeholder">Geen foto</div>}
+            {allImages[0] ? (
+              <img src={allImages[0]} alt="Hoofdfoto" referrerPolicy="no-referrer" />
+            ) : (
+              <div className="pd-placeholder">Geen afbeelding beschikbaar</div>
+            )}
           </div>
           
           <div className="pd-grid-side">
             <div className="pd-side-item" onClick={() => setPhotoIndex(1)}>
-              {allImages[1] && <img src={allImages[1]} alt="Side 1" referrerPolicy="no-referrer" />}
+              {allImages[1] && <img src={allImages[1]} alt="Detail 1" referrerPolicy="no-referrer" />}
             </div>
             
             <div className="pd-side-item" onClick={() => setPhotoIndex(2)}>
-              {allImages[2] && <img src={allImages[2]} alt="Side 2" referrerPolicy="no-referrer" />}
+              {allImages[2] && <img src={allImages[2]} alt="Detail 2" referrerPolicy="no-referrer" />}
               {allImages.length > 3 && (
                 <div className="pd-image-badge">
                   <span>+{allImages.length - 2} foto's</span>
@@ -67,8 +79,10 @@ const PropertyDetail: React.FC = () => {
             <div className="pd-stat">
               <span className="label">PRIJS</span>
               <span className="value">
-                {/* De FIX: Gebruik ?. en een fallback '-' als de prijs mist */}
-                {property.acf?.price ? `€ ${Number(property.acf.price).toLocaleString('nl-NL')}` : 'Op aanvraag'}
+                {/* De cruciale fix voor de 'price' error */}
+                {property.acf?.price 
+                  ? `€ ${Number(property.acf.price).toLocaleString('nl-NL')}` 
+                  : 'Op aanvraag'}
               </span>
             </div>
             <div className="pd-stat">
@@ -87,17 +101,20 @@ const PropertyDetail: React.FC = () => {
         </div>
       </div>
 
-      {photoIndex !== null && (
+      {photoIndex !== null && allImages[photoIndex] && (
         <div className="pd-overlay" onClick={() => setPhotoIndex(null)}>
           <button className="pd-close">✕ Sluiten</button>
+          
           <button className="pd-arrow prev" onClick={(e) => { 
             e.stopPropagation(); 
             setPhotoIndex((photoIndex - 1 + allImages.length) % allImages.length); 
           }}>‹</button>
+          
           <div className="pd-view-box" onClick={(e) => e.stopPropagation()}>
-            <img src={allImages[photoIndex]} alt="Full" />
+            <img src={allImages[photoIndex]} alt="Vergroting" />
             <div className="pd-counter">{photoIndex + 1} / {allImages.length}</div>
           </div>
+
           <button className="pd-arrow next" onClick={(e) => { 
             e.stopPropagation(); 
             setPhotoIndex((photoIndex + 1) % allImages.length); 
