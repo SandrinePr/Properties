@@ -41,16 +41,16 @@ const FilterForm: React.FC<FilterFormProps> = ({ onFilterChange }) => {
       <h2>Zoek & Filter</h2>
       <div className="filter-grid">
         <div className="input-group">
-          <label>Locatie</label>
-          <input name="search" type="text" value={currentFilters.search} onChange={handleChange} placeholder="Straat of stad..." />
+          <label htmlFor="search">Locatie</label>
+          <input id="search" name="search" type="text" value={currentFilters.search} onChange={handleChange} placeholder="Straat of stad..." />
         </div>
         <div className="input-group">
-          <label>Min. Prijs</label>
-          <input name="minPrice" type="number" value={currentFilters.minPrice} onChange={handleChange} placeholder="€ 0" />
+          <label htmlFor="minPrice">Min. Prijs</label>
+          <input id="minPrice" name="minPrice" type="number" value={currentFilters.minPrice} onChange={handleChange} placeholder="€ 0" />
         </div>
         <div className="input-group">
-          <label>Max. Prijs</label>
-          <input name="maxPrice" type="number" value={currentFilters.maxPrice} onChange={handleChange} placeholder="€ Geen limiet" />
+          <label htmlFor="maxPrice">Max. Prijs</label>
+          <input id="maxPrice" name="maxPrice" type="number" value={currentFilters.maxPrice} onChange={handleChange} placeholder="€ Geen limiet" />
         </div>
       </div>
 
@@ -62,16 +62,16 @@ const FilterForm: React.FC<FilterFormProps> = ({ onFilterChange }) => {
         {showAdvanced && (
           <div className="advanced-grid" style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '20px', width: '100%', marginTop: '20px'}}>
              <div className="input-group">
-                <label>Slaapkamers</label>
-                <input name="minBedrooms" type="number" value={currentFilters.minBedrooms} onChange={handleChange} placeholder="Aantal" />
+               <label htmlFor="minBedrooms">Slaapkamers</label>
+               <input id="minBedrooms" name="minBedrooms" type="number" value={currentFilters.minBedrooms} onChange={handleChange} placeholder="Aantal" />
              </div>
              <div className="input-group">
-                <label>Tuin</label>
-                <select name="hasGarden" value={currentFilters.hasGarden} onChange={handleChange}>
-                  <option value="">Alle</option>
-                  <option value="yes">Ja</option>
-                  <option value="no">Nee</option>
-                </select>
+               <label htmlFor="hasGarden">Tuin</label>
+               <select id="hasGarden" name="hasGarden" value={currentFilters.hasGarden} onChange={handleChange}>
+                <option value="">Alle</option>
+                <option value="yes">Ja</option>
+                <option value="no">Nee</option>
+               </select>
              </div>
           </div>
         )}
