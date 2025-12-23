@@ -1,4 +1,10 @@
-/* --- BASIS LAYOUT --- */
+/* --- VARIABELEN (Matchen met je App.scss) --- */
+$color-dark: #22223B;
+$color-medium: #4A4E69;
+$color-light: #F2E9E4;
+$white: #FFFFFF;
+$black: #000000;
+
 .pd-root {
   background: #fdfdfd;
   min-height: 100vh;
@@ -13,21 +19,21 @@
 .pd-back {
   display: inline-block;
   margin-bottom: 20px;
-  color: #666;
+  color: $color-medium;
   text-decoration: none;
-  font-weight: 500;
+  font-weight: 600;
   transition: color 0.2s;
-  &:hover { color: #000; }
+  &:hover { color: $black; }
 }
 
 .pd-title {
   font-size: 2.5rem;
   font-weight: 800;
   margin-bottom: 25px;
-  color: #1a1a1a;
+  color: $color-dark;
 }
 
-/* --- MOZAÏEK GALLERY GRID --- */
+/* --- MOSAIC GALLERY --- */
 .pd-mosaic-grid {
   display: grid;
   grid-template-columns: 2fr 1fr;
@@ -42,7 +48,7 @@
     height: 100%;
     object-fit: cover;
     display: block;
-    transition: transform 0.3s ease;
+    transition: transform 0.4s ease;
   }
 
   .pd-main-img, .pd-side-item {
@@ -51,7 +57,7 @@
     cursor: pointer;
     
     &:hover img {
-      transform: scale(1.02);
+      transform: scale(1.03);
     }
   }
 
@@ -73,7 +79,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
+    color: $white;
     font-size: 2rem;
     font-weight: 700;
     pointer-events: none;
@@ -89,50 +95,94 @@
   }
 }
 
-/* --- INFO CARD & STATS --- */
+/* --- INFO SECTIE --- */
 .pd-info {
-  background: white;
+  background: $white;
   padding: 40px;
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-}
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
 
-.pd-stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 25px;
-  margin-bottom: 40px;
-  padding-bottom: 30px;
-  border-bottom: 1px solid #f0f0f0;
-}
+  .pd-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 20px;
+    padding-bottom: 30px;
+    border-bottom: 1px solid #f0f0f0;
+    margin-bottom: 30px;
 
-.pd-stat {
-  .label {
-    display: block;
-    font-size: 0.75rem;
-    color: #999;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 5px;
+    .pd-stat {
+      .label {
+        display: block;
+        font-size: 0.7rem;
+        color: $color-muted;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 4px;
+      }
+      .value {
+        font-size: 1.3rem;
+        font-weight: 800;
+        color: $color-dark;
+      }
+    }
   }
-  .value {
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: #111;
+
+  .pd-content-split {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 40px;
+
+    h3 {
+      margin-bottom: 20px;
+      font-size: 1.4rem;
+      color: $color-dark;
+    }
+
+    .pd-desc p {
+      line-height: 1.7;
+      color: $color-medium;
+      white-space: pre-wrap;
+    }
+
+    .pd-details-list {
+      background: #f9f9f9;
+      padding: 25px;
+      border-radius: 12px;
+
+      ul {
+        list-style: none;
+        padding: 0;
+
+        li {
+          padding: 12px 0;
+          border-bottom: 1px solid #eee;
+          display: flex;
+          justify-content: space-between;
+          font-size: 0.95rem;
+
+          &:last-child { border: none; }
+
+          strong {
+            color: $color-medium;
+            font-weight: 600;
+          }
+          
+          span {
+            color: $color-dark;
+            font-weight: 700;
+          }
+        }
+      }
+    }
   }
 }
 
-.pd-desc {
-  h3 { margin-bottom: 15px; font-size: 1.5rem; }
-  p { line-height: 1.8; color: #444; white-space: pre-line; }
-}
-
-/* --- LIGHTBOX (KLIKBAAR OVERLAY) --- */
+/* --- LIGHTBOX --- */
 .pd-lightbox {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.95);
-  z-index: 9999;
+  z-index: 10000;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -140,81 +190,86 @@
 
   .pd-view-box {
     position: relative;
-    max-width: 90vw;
-    max-height: 80vh;
-    cursor: default;
-    
-    img {
-      max-width: 100%;
-      max-height: 80vh;
-      object-fit: contain;
-      border-radius: 4px;
-    }
-  }
-
-  .pd-counter {
-    color: white;
     text-align: center;
-    margin-top: 15px;
-    font-size: 0.9rem;
-    opacity: 0.7;
+    cursor: default;
+
+    img {
+      max-width: 90vw;
+      max-height: 85vh;
+      border-radius: 4px;
+      box-shadow: 0 0 40px rgba(0,0,0,0.5);
+    }
+
+    .pd-counter {
+      color: $white;
+      margin-top: 15px;
+      font-size: 0.9rem;
+      opacity: 0.6;
+    }
   }
 
   .pd-close {
     position: absolute;
-    top: 20px;
-    right: 20px;
-    background: white;
-    color: black;
+    top: 30px;
+    right: 30px;
+    background: $white;
     border: none;
-    padding: 10px 25px;
-    border-radius: 40px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    font-size: 1.2rem;
     font-weight: bold;
     cursor: pointer;
-    z-index: 10;
-    &:hover { background: #eee; }
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s;
+    &:hover { transform: scale(1.1); }
   }
 
   .pd-arrow {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    background: rgba(255, 255, 255, 0.1);
-    color: white;
+    background: none;
     border: none;
-    font-size: 2.5rem;
-    width: 70px;
-    height: 70px;
+    color: $white;
+    font-size: 3.5rem;
     cursor: pointer;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.2s;
-    z-index: 10;
+    padding: 20px;
+    transition: opacity 0.2s, transform 0.2s;
+    user-select: none;
 
-    &:hover { background: rgba(255, 255, 255, 0.2); }
-    &.prev { left: 30px; }
-    &.next { right: 30px; }
+    &:hover {
+      opacity: 0.7;
+      transform: translateY(-50%) scale(1.1);
+    }
+    &.prev { left: 20px; }
+    &.next { right: 20px; }
   }
 }
 
-/* --- RESPONSIVE DESIGN --- */
-@media (max-width: 768px) {
+/* --- RESPONSIVE --- */
+@media (max-width: 850px) {
   .pd-mosaic-grid {
     grid-template-columns: 1fr;
-    height: 300px;
+    height: 350px;
     .pd-side-imgs { display: none; }
   }
-  
-  .pd-stats { grid-template-columns: 1fr 1fr; }
+
+  .pd-info {
+    padding: 25px;
+    .pd-content-split {
+      grid-template-columns: 1fr;
+      gap: 30px;
+    }
+  }
+
   .pd-title { font-size: 1.8rem; }
-  
-  .pd-arrow {
-    width: 50px;
-    height: 50px;
-    font-size: 1.5rem;
-    &.prev { left: 10px; }
-    &.next { right: 10px; }
+
+  .pd-lightbox .pd-arrow {
+    font-size: 2.5rem;
+    &.prev { left: 5px; }
+    &.next { right: 5px; }
   }
 }

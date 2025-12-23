@@ -1,12 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import './PropertyDetail.scss';
 
 const PropertyDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [property, setProperty] = useState<any>(null);
-  
-  // Lightbox state
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   useEffect(() => {
@@ -23,26 +21,36 @@ const PropertyDetail: React.FC = () => {
     fetchProperty();
   }, [id]);
 
-  if (!property || !property.acf) return <div className="pd-loading">Data laden...</div>;
-
-  const acf = property.acf;
-  const featuredImage = property._embedded?.['wp:featuredmedia']?.[0]?.source_url;
+  const acf = property?.acf || {};
+  const featuredImage = property?._embedded?.['wp:featuredmedia']?.[0]?.source_url;
   const gallery: string[] = Array.isArray(acf.property_gallery) ? acf.property_gallery : [];
-  
-  // Combineer alle foto's in één array voor de lightbox (Hoofdfoto eerst)
   const allImages = featuredImage ? [featuredImage, ...gallery] : gallery;
   const extraCount = gallery.length - 2;
 
-  // Navigatie functies
-  const nextImage = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  // Navigatie Logica
+  const nextImage = useCallback((e?: React.MouseEvent) => {
+    e?.stopPropagation();
     setLightboxIndex((prev) => (prev !== null && prev < allImages.length - 1 ? prev + 1 : 0));
-  };
+  }, [allImages.length]);
 
-  const prevImage = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const prevImage = useCallback((e?: React.MouseEvent) => {
+    e?.stopPropagation();
     setLightboxIndex((prev) => (prev !== null && prev > 0 ? prev - 1 : allImages.length - 1));
-  };
+  }, [allImages.length]);
+
+  // Toetsenbord ondersteuning
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (lightboxIndex === null) return;
+      if (e.key === 'ArrowRight') nextImage();
+      if (e.key === 'ArrowLeft') prevImage();
+      if (e.key === 'Escape') setLightboxIndex(null);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [lightboxIndex, nextImage, prevImage]);
+
+  if (!property || !property.acf) return <div className="pd-loading">Woning laden...</div>;
 
   return (
     <div className="pd-root">
@@ -50,62 +58,66 @@ const PropertyDetail: React.FC = () => {
         <Link to="/" className="pd-back">← Terug naar overzicht</Link>
         <h1 className="pd-title">{property.title?.rendered}</h1>
 
-        {/* Mosaic Grid */}
+        {/* Mosaic Gallery */}
         <div className="pd-mosaic-grid">
-          {/* Main Image (Index 0) */}
           <div className="pd-main-img" onClick={() => setLightboxIndex(0)}>
-            {featuredImage ? (
-              <img src={featuredImage} alt="Main" referrerPolicy="no-referrer" />
-            ) : (
-              <div className="pd-placeholder">Geen foto</div>
-            )}
+            {featuredImage ? <img src={featuredImage} alt="Main" /> : <div className="pd-placeholder">Geen foto</div>}
           </div>
-
           <div className="pd-side-imgs">
-            {/* Gallery Image 1 (Index 1) */}
             <div className="pd-side-item" onClick={() => setLightboxIndex(1)}>
               {gallery[0] ? <img src={gallery[0]} alt="G1" /> : <div className="pd-placeholder" />}
             </div>
-
-            {/* Gallery Image 2 (Index 2) */}
             <div className="pd-side-item" onClick={() => setLightboxIndex(2)}>
               {gallery[1] ? (
                 <>
                   <img src={gallery[1]} alt="G2" />
                   {extraCount > 0 && <div className="pd-overlay"><span>+{extraCount}</span></div>}
                 </>
-              ) : (
-                <div className="pd-placeholder" />
-              )}
+              ) : <div className="pd-placeholder" />}
             </div>
           </div>
         </div>
 
-        {/* LIGHTBOX OVERLAY */}
+        {/* Info Sectie */}
+        <div className="pd-info">
+          <div className="pd-stats">
+            <div className="pd-stat"><span className="label">PRIJS</span><span className="value">€ {Number(acf.price || 0).toLocaleString('nl-NL')}</span></div>
+            <div className="pd-stat"><span className="label">SLAAPKAMERS</span><span className="value">{acf.bedrooms || 0}</span></div>
+            <div className="pd-stat"><span className="label">BADKAMERS</span><span className="value">{acf.bathrooms || 0}</span></div>
+            <div className="pd-stat"><span className="label">OPPERVLAKTE</span><span className="value">{acf.square_footage || 0} m²</span></div>
+          </div>
+
+          <div className="pd-content-split">
+            <div className="pd-desc">
+              <h3>Beschrijving</h3>
+              <p>{acf.description || "Geen beschrijving beschikbaar."}</p>
+            </div>
+            
+            <div className="pd-details-list">
+              <h3>Kenmerken</h3>
+              <ul>
+                <li><strong>Bouwjaar:</strong> {acf.construction_year || 'Onbekend'}</li>
+                <li><strong>Tuin:</strong> {acf.garden ? 'Ja' : 'Nee'}</li>
+                <li><strong>Garage:</strong> {acf.garage ? 'Ja' : 'Nee'}</li>
+                <li><strong>Oprit:</strong> {acf.driveway ? 'Ja' : 'Nee'}</li>
+                <li><strong>Zwembad:</strong> {acf.pool ? 'Ja' : 'Nee'}</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        {/* Lightbox */}
         {lightboxIndex !== null && (
           <div className="pd-lightbox" onClick={() => setLightboxIndex(null)}>
-            <button className="pd-close">Sluiten</button>
+            <button className="pd-close" onClick={() => setLightboxIndex(null)}>✕</button>
             <button className="pd-arrow prev" onClick={prevImage}>&#10094;</button>
-            <div className="pd-view-box">
+            <div className="pd-view-box" onClick={(e) => e.stopPropagation()}>
               <img src={allImages[lightboxIndex]} alt="Full view" />
               <div className="pd-counter">{lightboxIndex + 1} / {allImages.length}</div>
             </div>
             <button className="pd-arrow next" onClick={nextImage}>&#10095;</button>
           </div>
         )}
-
-        <div className="pd-info">
-          {/* De rest van je stats... */}
-          <div className="pd-stats">
-             <div className="pd-stat"><span className="label">PRIJS</span><span className="value">€ {Number(acf.price || 0).toLocaleString('nl-NL')}</span></div>
-             <div className="pd-stat"><span className="label">SLAAPKAMERS</span><span className="value">{acf.bedrooms || 0}</span></div>
-             <div className="pd-stat"><span className="label">OPPERVLAKTE</span><span className="value">{acf.square_footage || 0} m²</span></div>
-          </div>
-          <div className="pd-desc">
-            <h3>Beschrijving</h3>
-            <p>{acf.description}</p>
-          </div>
-        </div>
       </div>
     </div>
   );
