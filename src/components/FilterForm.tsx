@@ -6,6 +6,8 @@ export interface Filters {
   maxPrice: number | '';
   minBedrooms: number | '';
   minBathrooms: number | '';
+  minArea: number | '';
+  minYear: number | '';
   selectedTypeSlug: string | null;
   hasGarden: 'yes' | 'no' | '';
   hasPool: 'yes' | 'no' | '';
@@ -19,7 +21,7 @@ interface FilterFormProps {
 
 const FilterForm: React.FC<FilterFormProps> = ({ onFilterChange }) => {
   const [currentFilters, setCurrentFilters] = useState<Filters>({
-    search: '', minPrice: '', maxPrice: '', minBedrooms: '', minBathrooms: '',
+    search: '', minPrice: '', maxPrice: '', minBedrooms: '', minBathrooms: '', minArea: '', minYear: '',
     selectedTypeSlug: null, hasGarden: '', hasPool: '', hasGarage: '', hasDriveway: '',
   });
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -27,9 +29,9 @@ const FilterForm: React.FC<FilterFormProps> = ({ onFilterChange }) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     // Zorg dat getallen ook als getallen worden opgeslagen voor de filtering
-    const val = (['minPrice', 'maxPrice', 'minBedrooms', 'minBathrooms'].includes(name)) 
-                ? (value !== '' ? parseInt(value, 10) : '') 
-                : value;
+    const val = (['minPrice', 'maxPrice', 'minBedrooms', 'minBathrooms', 'minArea', 'minYear'].includes(name)) 
+          ? (value !== '' ? parseInt(value, 10) : '') 
+          : value;
 
     const newFilters = { ...currentFilters, [name]: val };
     setCurrentFilters(newFilters as Filters);
@@ -61,21 +63,74 @@ const FilterForm: React.FC<FilterFormProps> = ({ onFilterChange }) => {
 
         {showAdvanced && (
           <div className="advanced-grid" style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '20px', width: '100%', marginTop: '20px'}}>
-             <div className="input-group">
-               <label htmlFor="minBedrooms">Slaapkamers</label>
-               <input id="minBedrooms" name="minBedrooms" type="number" value={currentFilters.minBedrooms} onChange={handleChange} placeholder="Aantal" />
-             </div>
-             <div className="input-group">
-               <label htmlFor="hasGarden">Tuin</label>
-               <select id="hasGarden" name="hasGarden" value={currentFilters.hasGarden} onChange={handleChange}>
+            <div className="input-group">
+              <label htmlFor="minBedrooms">Slaapkamers</label>
+              <input id="minBedrooms" name="minBedrooms" type="number" value={currentFilters.minBedrooms} onChange={handleChange} placeholder="Aantal" />
+            </div>
+            <div className="input-group">
+              <label htmlFor="minBathrooms">Badkamers</label>
+              <input id="minBathrooms" name="minBathrooms" type="number" value={currentFilters.minBathrooms} onChange={handleChange} placeholder="Aantal" />
+            </div>
+            <div className="input-group">
+              <label htmlFor="minArea">Min. Oppervlakte (m²)</label>
+              <input id="minArea" name="minArea" type="number" value={currentFilters.minArea} onChange={handleChange} placeholder="m²" />
+            </div>
+            <div className="input-group">
+              <label htmlFor="minYear">Min. Bouwjaar</label>
+              <input id="minYear" name="minYear" type="number" value={currentFilters.minYear} onChange={handleChange} placeholder="Jaar" />
+            </div>
+            <div className="input-group">
+              <label htmlFor="hasGarden">Tuin</label>
+              <select id="hasGarden" name="hasGarden" value={currentFilters.hasGarden} onChange={handleChange}>
                 <option value="">Alle</option>
                 <option value="yes">Ja</option>
                 <option value="no">Nee</option>
-               </select>
-             </div>
+              </select>
+            </div>
+            <div className="input-group">
+              <label htmlFor="hasGarage">Garage</label>
+              <select id="hasGarage" name="hasGarage" value={currentFilters.hasGarage} onChange={handleChange}>
+                <option value="">Alle</option>
+                <option value="yes">Ja</option>
+                <option value="no">Nee</option>
+              </select>
+            </div>
+            <div className="input-group">
+              <label htmlFor="hasDriveway">Oprit</label>
+              <select id="hasDriveway" name="hasDriveway" value={currentFilters.hasDriveway} onChange={handleChange}>
+                <option value="">Alle</option>
+                <option value="yes">Ja</option>
+                <option value="no">Nee</option>
+              </select>
+            </div>
+            <div className="input-group">
+              <label htmlFor="hasPool">Zwembad</label>
+              <select id="hasPool" name="hasPool" value={currentFilters.hasPool} onChange={handleChange}>
+                <option value="">Alle</option>
+                <option value="yes">Ja</option>
+                <option value="no">Nee</option>
+              </select>
+            </div>
           </div>
         )}
-        <button className="btn-primary" onClick={() => window.location.reload()}>Reset Filters</button>
+        <button className="btn-primary" type="button" onClick={() => {
+          const emptyFilters: Filters = {
+            search: '',
+            minPrice: '',
+            maxPrice: '',
+            minBedrooms: '',
+            minBathrooms: '',
+            minArea: '',
+            minYear: '',
+            selectedTypeSlug: null,
+            hasGarden: '',
+            hasPool: '',
+            hasGarage: '',
+            hasDriveway: '',
+          };
+          setCurrentFilters(emptyFilters);
+          onFilterChange(emptyFilters);
+        }}>Reset Filters</button>
       </div>
     </div>
   );
