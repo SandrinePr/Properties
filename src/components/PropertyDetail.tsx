@@ -1,33 +1,39 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import useSWR from 'swr'; // Vergeet niet: npm install swr
 import './PropertyDetail.scss';
+
+// 1. De Fetcher: Deze regelt de verbinding en de headers
+const fetcher = (url: string) => 
+  fetch(url, {
+    headers: {
+      'Authorization': 'Basic ' + btoa('staple:temporary')
+    }
+  }).then(res => res.json());
 
 const PropertyDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const [property, setProperty] = useState<any>(null);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
-  useEffect(() => {
-    const fetchProperty = async () => {
-      const API_URL = 'https://dev-property-dashboard.pantheonsite.io';
-      const headers = new Headers();
-      headers.set('Authorization', 'Basic ' + btoa('staple:temporary'));
-      try {
-        const res = await fetch(`${API_URL}/wp-json/wp/v2/property/${id}?_embed`, { headers });
-        const data = await res.json();
-        setProperty(data);
-      } catch (err) { console.error("Detail error", err); }
-    };
-    fetchProperty();
-  }, [id]);
+  // 2. De Boodschappenlijst + Slim Geheugen
+  // We vragen alleen id, title en acf op. _embed laten we staan voor de hoofdfoto.
+  const { data: property, error, isLoading } = useSWR(
+    `https://dev-property-dashboard.pantheonsite.io/wp-json/wp/v2/property/${id}?_fields=id,title,acf&_embed`,
+    fetcher,
+    {
+      revalidateOnFocus: false, // Voorkomt onnodig verversen als je van tabblad wisselt
+      dedupingInterval: 60000,   // Onthoudt de data sowieso 1 minuut heel strikt
+    }
+  );
 
+  // Helper variabelen (Hetzelfde als je had, maar nu gebaseerd op 'data')
   const acf = property?.acf || {};
   const featuredImage = property?._embedded?.['wp:featuredmedia']?.[0]?.source_url;
   const gallery: string[] = Array.isArray(acf.property_gallery) ? acf.property_gallery : [];
   const allImages = featuredImage ? [featuredImage, ...gallery] : gallery;
   const extraCount = gallery.length - 2;
 
-  // Navigatie Logica
+  // Navigatie Logica (ongewijzigd)
   const nextImage = useCallback((e?: React.MouseEvent) => {
     e?.stopPropagation();
     setLightboxIndex((prev) => (prev !== null && prev < allImages.length - 1 ? prev + 1 : 0));
@@ -38,7 +44,6 @@ const PropertyDetail: React.FC = () => {
     setLightboxIndex((prev) => (prev !== null && prev > 0 ? prev - 1 : allImages.length - 1));
   }, [allImages.length]);
 
-  // Toetsenbord ondersteuning
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (lightboxIndex === null) return;
@@ -50,7 +55,9 @@ const PropertyDetail: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [lightboxIndex, nextImage, prevImage]);
 
-  if (!property || !property.acf) return <div className="pd-loading">Woning laden...</div>;
+  // 3. States afhandelen
+  if (error) return <div className="pd-error">Er is iets misgegaan bij het ophalen van de gegevens.</div>;
+  if (isLoading || !property) return <div className="pd-loading">Woning laden met cache...</div>;
 
   return (
     <div className="pd-root">
@@ -58,7 +65,6 @@ const PropertyDetail: React.FC = () => {
         <Link to="/" className="pd-back">← Terug naar overzicht</Link>
         <h1 className="pd-title">{property.title?.rendered}</h1>
 
-        {/* Mosaic Gallery */}
         <div className="pd-mosaic-grid">
           <div className="pd-main-img" onClick={() => setLightboxIndex(0)}>
             {featuredImage ? <img src={featuredImage} alt="Main" /> : <div className="pd-placeholder">Geen foto</div>}
@@ -78,7 +84,6 @@ const PropertyDetail: React.FC = () => {
           </div>
         </div>
 
-        {/* Info Sectie */}
         <div className="pd-info">
           <div className="pd-stats">
             <div className="pd-stat"><span className="label">PRIJS</span><span className="value">€ {Number(acf.price || 0).toLocaleString('nl-NL')}</span></div>
@@ -106,7 +111,6 @@ const PropertyDetail: React.FC = () => {
           </div>
         </div>
 
-        {/* Lightbox */}
         {lightboxIndex !== null && (
           <div className="pd-lightbox" onClick={() => setLightboxIndex(null)}>
             <button className="pd-close" onClick={() => setLightboxIndex(null)}>✕</button>
