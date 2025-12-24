@@ -28,7 +28,7 @@ const FilterForm: React.FC<FilterFormProps> = ({ onFilterChange }) => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    // Zorg dat getallen ook als getallen worden opgeslagen voor de filtering
+    
     const val = (['minPrice', 'maxPrice', 'minBedrooms', 'minBathrooms', 'minArea', 'minYear'].includes(name)) 
           ? (value !== '' ? parseInt(value, 10) : '') 
           : value;
@@ -40,6 +40,18 @@ const FilterForm: React.FC<FilterFormProps> = ({ onFilterChange }) => {
 
   return (
     <div className="filter-box">
+      {/* Inline style tag op de juiste React manier */}
+      <style>{`
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+          -webkit-appearance: none;
+          margin: 0;
+        }
+        input[type=number] {
+          -moz-appearance: textfield;
+        }
+      `}</style>
+
       <h2>Zoek & Filter</h2>
       <div className="filter-grid">
         <div className="input-group">
@@ -48,11 +60,11 @@ const FilterForm: React.FC<FilterFormProps> = ({ onFilterChange }) => {
         </div>
         <div className="input-group">
           <label htmlFor="minPrice">Min. Prijs</label>
-          <input id="minPrice" name="minPrice" type="number" min="0" value={currentFilters.minPrice} onChange={handleChange} placeholder="€ 0" inputMode="numeric" style={{MozAppearance:'textfield'}} />
+          <input id="minPrice" name="minPrice" type="number" min="0" value={currentFilters.minPrice} onChange={handleChange} placeholder="€ 0" />
         </div>
         <div className="input-group">
           <label htmlFor="maxPrice">Max. Prijs</label>
-          <input id="maxPrice" name="maxPrice" type="number" min="0" value={currentFilters.maxPrice} onChange={handleChange} placeholder="€ Geen limiet" inputMode="numeric" style={{MozAppearance:'textfield'}} />
+          <input id="maxPrice" name="maxPrice" type="number" min="0" value={currentFilters.maxPrice} onChange={handleChange} placeholder="€ Geen limiet" />
         </div>
       </div>
 
@@ -65,30 +77,19 @@ const FilterForm: React.FC<FilterFormProps> = ({ onFilterChange }) => {
           <div className="advanced-grid" style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '20px', width: '100%', marginTop: '20px'}}>
             <div className="input-group">
               <label htmlFor="minBedrooms">Slaapkamers</label>
-              <input id="minBedrooms" name="minBedrooms" type="number" min="0" value={currentFilters.minBedrooms} onChange={handleChange} placeholder="Aantal" inputMode="numeric" style={{MozAppearance:'textfield'}} />
+              <input id="minBedrooms" name="minBedrooms" type="number" min="0" value={currentFilters.minBedrooms} onChange={handleChange} placeholder="Aantal" />
             </div>
             <div className="input-group">
               <label htmlFor="minBathrooms">Badkamers</label>
-              <input id="minBathrooms" name="minBathrooms" type="number" min="0" value={currentFilters.minBathrooms} onChange={handleChange} placeholder="Aantal" inputMode="numeric" style={{MozAppearance:'textfield'}} />
+              <input id="minBathrooms" name="minBathrooms" type="number" min="0" value={currentFilters.minBathrooms} onChange={handleChange} placeholder="Aantal" />
             </div>
             <div className="input-group">
               <label htmlFor="minArea">Min. Oppervlakte (m²)</label>
-              <input id="minArea" name="minArea" type="number" min="0" value={currentFilters.minArea} onChange={handleChange} placeholder="m²" inputMode="numeric" style={{MozAppearance:'textfield'}} />
+              <input id="minArea" name="minArea" type="number" min="0" value={currentFilters.minArea} onChange={handleChange} placeholder="m²" />
             </div>
             <div className="input-group">
               <label htmlFor="minYear">Min. Bouwjaar</label>
-              <input id="minYear" name="minYear" type="number" min="0" value={currentFilters.minYear} onChange={handleChange} placeholder="Jaar" inputMode="numeric" style={{MozAppearance:'textfield'}} />
-            <style>
-              /* Verberg pijltjes in number inputs voor alle browsers */
-              input[type=number]::-webkit-inner-spin-button,
-              input[type=number]::-webkit-outer-spin-button {
-                -webkit-appearance: none;
-                margin: 0;
-              }
-              input[type=number] {
-                -moz-appearance: textfield;
-              }
-            </style>
+              <input id="minYear" name="minYear" type="number" min="0" value={currentFilters.minYear} onChange={handleChange} placeholder="Jaar" />
             </div>
             <div className="input-group">
               <label htmlFor="hasGarden">Tuin</label>
@@ -124,20 +125,12 @@ const FilterForm: React.FC<FilterFormProps> = ({ onFilterChange }) => {
             </div>
           </div>
         )}
+        
         <button className="btn-primary" type="button" onClick={() => {
           const emptyFilters: Filters = {
-            search: '',
-            minPrice: '',
-            maxPrice: '',
-            minBedrooms: '',
-            minBathrooms: '',
-            minArea: '',
-            minYear: '',
-            selectedTypeSlug: null,
-            hasGarden: '',
-            hasPool: '',
-            hasGarage: '',
-            hasDriveway: '',
+            search: '', minPrice: '', maxPrice: '', minBedrooms: '', minBathrooms: '',
+            minArea: '', minYear: '', selectedTypeSlug: null, hasGarden: '', 
+            hasPool: '', hasGarage: '', hasDriveway: '',
           };
           setCurrentFilters(emptyFilters);
           onFilterChange(emptyFilters);
