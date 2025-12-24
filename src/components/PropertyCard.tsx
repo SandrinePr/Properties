@@ -1,14 +1,17 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-
 const PropertyCard = ({ property }: { property: any }) => {
     if (!property) return null;
 
     const title = property.title?.rendered || "Naamloze woning";
     const acf = property.acf || null;
-    const featuredImage = property._embedded?.['wp:featuredmedia']?.[0]?.source_url;
 
+    // IMAGE OPTIMIZATION: We pakken een kleiner formaat (medium_large) i.p.v. het origineel
+    const media = property._embedded?.['wp:featuredmedia']?.[0];
+    const featuredImage = media?.media_details?.sizes?.medium_large?.source_url 
+                        || media?.media_details?.sizes?.large?.source_url 
+                        || media?.source_url;
 
     // Parseer velden als getal
     let price = acf && acf.price ? Number(acf.price) : null;
@@ -30,7 +33,12 @@ const PropertyCard = ({ property }: { property: any }) => {
         <div className="property-card">
             <div className="card-image">
                 {featuredImage ? (
-                    <img src={featuredImage} alt={title} referrerPolicy="no-referrer" />
+                    <img 
+                        src={featuredImage} 
+                        alt={title} 
+                        referrerPolicy="no-referrer" 
+                        loading="lazy" // Laat de browser bepalen wanneer de foto geladen moet worden
+                    />
                 ) : (
                     <div className="placeholder">Geen afbeelding</div>
                 )}
