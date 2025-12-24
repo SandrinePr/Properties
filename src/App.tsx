@@ -31,9 +31,9 @@ function App() {
   const [selectedType, setSelectedType] = useState<string | null>(null);
 
   // GEHEUGEN + BOODSCHAPPENLIJST COMBINATIE
-  // We voegen &_fields=... toe om alleen de data op te halen die je filters gebruiken
+  // featured_media is toegevoegd aan _fields om de afbeeldingen weer zichtbaar te maken
   const { data: propertiesData, error, isLoading } = useSWR(
-    'https://dev-property-dashboard.pantheonsite.io/wp-json/wp/v2/property?_embed&per_page=100&_fields=id,title,acf,_links,_embedded',
+    'https://dev-property-dashboard.pantheonsite.io/wp-json/wp/v2/property?_embed&per_page=100&_fields=id,title,acf,_links,_embedded,featured_media',
     fetcher,
     {
       revalidateOnFocus: false, // Niet opnieuw laden als je van tabblad wisselt
