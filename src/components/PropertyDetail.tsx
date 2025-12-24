@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import useSWR from 'swr'; // Vergeet niet: npm install swr
+import useSWR from 'swr';
 import './PropertyDetail.scss';
 
-// 1. De Fetcher: Deze regelt de verbinding en de headers
 const fetcher = (url: string) => 
   fetch(url, {
     headers: {
@@ -15,25 +14,24 @@ const PropertyDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
-  // 2. De Boodschappenlijst + Slim Geheugen
-  // We vragen alleen id, title en acf op. _embed laten we staan voor de hoofdfoto.
+  // De URL is nu gefilterd ÉN bevat de foto-data (_links, _embedded)
   const { data: property, error, isLoading } = useSWR(
-    `https://dev-property-dashboard.pantheonsite.io/wp-json/wp/v2/property/${id}?_fields=id,title,acf&_embed`,
+    `https://dev-property-dashboard.pantheonsite.io/wp-json/wp/v2/property/${id}?_fields=id,title,acf,_links,_embedded&_embed`,
     fetcher,
     {
-      revalidateOnFocus: false, // Voorkomt onnodig verversen als je van tabblad wisselt
-      dedupingInterval: 60000,   // Onthoudt de data sowieso 1 minuut heel strikt
+      revalidateOnFocus: false,
+      dedupingInterval: 60000,
     }
   );
 
-  // Helper variabelen (Hetzelfde als je had, maar nu gebaseerd op 'data')
   const acf = property?.acf || {};
+  
+  // Deze logica werkt nu weer omdat we _embedded hebben toegevoegd aan de fields
   const featuredImage = property?._embedded?.['wp:featuredmedia']?.[0]?.source_url;
   const gallery: string[] = Array.isArray(acf.property_gallery) ? acf.property_gallery : [];
   const allImages = featuredImage ? [featuredImage, ...gallery] : gallery;
   const extraCount = gallery.length - 2;
 
-  // Navigatie Logica (ongewijzigd)
   const nextImage = useCallback((e?: React.MouseEvent) => {
     e?.stopPropagation();
     setLightboxIndex((prev) => (prev !== null && prev < allImages.length - 1 ? prev + 1 : 0));
@@ -55,9 +53,8 @@ const PropertyDetail: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [lightboxIndex, nextImage, prevImage]);
 
-  // 3. States afhandelen
-  if (error) return <div className="pd-error">Er is iets misgegaan bij het ophalen van de gegevens.</div>;
-  if (isLoading || !property) return <div className="pd-loading">Woning laden met cache...</div>;
+  if (error) return <div className="pd-error">Fout bij laden.</div>;
+  if (isLoading || !property) return <div className="pd-loading">Woning laden...</div>;
 
   return (
     <div className="pd-root">
