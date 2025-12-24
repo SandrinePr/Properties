@@ -84,6 +84,7 @@ const PropertyDetail: React.FC = () => {
           </div>
         </div>
 
+        {/* Info Sectie */}
         <div className="pd-info">
           <div className="pd-stats">
             <div className="pd-stat"><span className="label">PRIJS</span><span className="value">€ {Number(acf.price || 0).toLocaleString('nl-NL')}</span></div>
